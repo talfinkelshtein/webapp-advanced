@@ -1,4 +1,37 @@
 ###
+// add a new post
+POST http://localhost:3000/posts
+Content-Type: application/json
 
-GET http://localhost:3000
+{
+    "title": "Hello",
+    "sender": "Tal",
+    "content": "lalalala"
+}
 
+###
+// get all posts
+GET http://localhost:3000/posts
+
+###
+// get post by id
+GET http://localhost:3000/posts/67596c3e3ec604a5f9e99d46
+
+###
+// get posts by sender
+GET http://localhost:3000/posts?sender=Tal
+
+###
+// update post by id
+PUT http://localhost:3000/posts/67597d2a82db13479f039a2e
+Content-Type: application/json
+
+{
+    "title": "Hello",
+    "sender": "Tal",
+    "content": "new content"
+}
+
+###
+// delete post by id
+DELETE http://localhost:3000/posts/67597d2a82db13479f039a2e
