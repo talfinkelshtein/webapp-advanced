@@ -19,7 +19,7 @@ db.once("open", () => console.log("Connected to database"));
 const initApp = () => {
     return new Promise((resolve, reject) => {
       mongoose
-        .connect('mongodb://127.0.0.1/webapp')
+        .connect(process.env.DB_CONNECT)
         .then(() => {
           resolve(app);
         })
