@@ -35,3 +35,42 @@ Content-Type: application/json
 ###
 // delete post by id
 DELETE http://localhost:3000/posts/67597d2a82db13479f039a2e
+
+###
+// add a new comment
+POST http://localhost:3000/comments
+Content-Type: application/json
+
+{
+    "_id": "675d8841115d7e13386ec3d1",
+    "comment": "Lior!",
+    "owner": "Tal",
+    "postId": "67596c3e3ec604a5f9e99d46"
+}
+
+###
+// get all comments
+GET http://localhost:3000/comments
+
+###
+// get comment by id
+GET http://localhost:3000/comments/675d8841115d7e13386ec3d1
+
+###
+// get comment by post id
+GET http://localhost:3000/comments/byPost/67596c3e3ec604a5f9e99d46
+
+###
+// update comment by id
+PUT http://localhost:3000/comments/675d8841115d7e13386ec3d1
+Content-Type: application/json
+
+{
+    "comment": "Tal!",
+    "owner": "Tal",
+    "postId": "67596c3e3ec604a5f9e99d46"
+}
+
+###
+// delete comment by id
+DELETE http://localhost:3000/comments/675d8841115d7e13386ec3d1

@@ -44,7 +44,9 @@ const updatePost = async (req, res) => {
   const postId = req.params.id;
   const postBody = req.body;
   try {
-    const post = await PostModel.findByIdAndUpdate(postId, postBody, { new: true });
+    const post = await PostModel.findByIdAndUpdate(postId, postBody, {
+      new: true,
+    });
     res.status(201).send(post);
   } catch (error) {
     res.status(400).send(error.message);
@@ -66,5 +68,5 @@ export default {
   createPost,
   deletePost,
   getPostById,
-  updatePost
+  updatePost,
 };
