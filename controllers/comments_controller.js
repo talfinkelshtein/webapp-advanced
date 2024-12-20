@@ -24,7 +24,7 @@ const getCommentById = async (req, res) => {
   }
 };
 
-const getCommentByPostId = async (req, res) => {
+const getCommentsByPostId = async (req, res) => {
   const postId = req.params.id;
 
   try {
@@ -81,6 +81,6 @@ export default {
   createComment,
   deleteComment,
   getCommentById,
-  getCommentByPostId,
+  getCommentsByPostId,
   updateComment,
 };
