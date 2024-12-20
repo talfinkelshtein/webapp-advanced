@@ -1,15 +1,9 @@
 import CommentsModel from "../models/comments_model.js";
 
 const getAllComments = async (req, res) => {
-  const filter = req.query.sender;
   try {
-    if (filter) {
-      const comments = await CommentsModel.find({ sender: filter });
-      res.send(comments);
-    } else {
-      const comments = await CommentsModel.find();
-      res.send(comments);
-    }
+    const comments = await CommentsModel.find();
+    res.send(comments);
   } catch (error) {
     res.status(400).send(error.message);
   }
@@ -30,7 +24,7 @@ const getCommentById = async (req, res) => {
   }
 };
 
-const getCommentByPostId = async (req, res) => {
+const getCommentsByPostId = async (req, res) => {
   const postId = req.params.id;
 
   try {
@@ -87,6 +81,6 @@ export default {
   createComment,
   deleteComment,
   getCommentById,
-  getCommentByPostId,
+  getCommentsByPostId,
   updateComment,
 };
