@@ -34,7 +34,7 @@ const getCommentByPostId = async (req, res) => {
   const postId = req.params.id;
 
   try {
-    const comment = await CommentsModel.find({ owner: postId });
+    const comment = await CommentsModel.find({ postId: postId });
     if (comment) {
       res.send(comment);
     } else {
