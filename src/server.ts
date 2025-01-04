@@ -5,12 +5,14 @@ import bodyParser from "body-parser";
 import express, { Express } from "express";
 import postsRoute from "./routes/posts_route";
 import commentsRoute from "./routes/comments_routes";
+import authRoutes from "./routes/auth_routes";
 
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/posts", postsRoute);
 app.use("/comments", commentsRoute);
+app.use("/auth", authRoutes);
 
 const db = mongoose.connection;
 db.on("error", (error) => console.error(error));
