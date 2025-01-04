@@ -7,12 +7,11 @@ import { jwtToken, User } from "../types/auth.types";
 
 const register = async (req: Request, res: Response) => {
   try {
-    const { password, email } = req.body;
+    const password = req.body.password;
     const salt = await bcrypt.genSalt(10);
-
     const hashedPassword = await bcrypt.hash(password, salt);
     const user = await userModel.create({
-      email: email,
+      email: req.body.email,
       password: hashedPassword,
     });
     res.status(StatusCodes.OK).send(user);
