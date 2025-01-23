@@ -20,7 +20,7 @@ const register = async (req: Request, res: Response) => {
   }
 };
 
-const generateToken = (userId: string): jwtToken | null => {
+export const generateToken = (userId: string): jwtToken | null => {
   if (!process.env.TOKEN_SECRET) return null;
 
   const randomNum = Math.random().toString();
@@ -49,7 +49,7 @@ const generateToken = (userId: string): jwtToken | null => {
   };
 };
 
-const login = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     const user = await userModel.findOne({ email: email });
@@ -82,7 +82,7 @@ const login = async (req: Request, res: Response) => {
   }
 };
 
-const verifyRefreshToken = (refreshToken: string | undefined) => {
+export const verifyRefreshToken = (refreshToken: string | undefined) => {
   return new Promise<User>((resolve, reject) => {
     if (!refreshToken || !process.env.TOKEN_SECRET) {
       reject("fail");
@@ -135,7 +135,7 @@ const logout = async (req: Request, res: Response) => {
   }
 };
 
-const refresh = async (req: Request, res: Response) => {
+export const refresh = async (req: Request, res: Response) => {
   try {
     const user = await verifyRefreshToken(req.body.refreshToken);
     if (!user) {

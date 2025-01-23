@@ -4,6 +4,7 @@ import { Express } from "express";
 import postModel from "../models/posts_model";
 import userModel, { IUser } from "../models/users_model";
 import initApp from "../server";
+import * as moduleUnderTest from "../controllers/auth_controller";
 
 var app: Express;
 
@@ -61,6 +62,15 @@ describe("Auth Tests", () => {
         password: "sdfsd",
       });
     expect(response2.statusCode).not.toBe(200);
+  });
+
+  test("Auth test login fail token generation (Generate token returns null)", async () => {
+    jest.spyOn(moduleUnderTest, "generateToken").mockReturnValue(null);
+    const response = await request(app)
+      .post(baseUrl + "/login")
+      .send(testUser);
+    expect(response.statusCode).toBe(500);
+    jest.restoreAllMocks();
   });
 
   test("Auth test login", async () => {
@@ -123,6 +133,13 @@ describe("Auth Tests", () => {
         owner: "sdfSd",
       });
     expect(response2.statusCode).toBe(201);
+  });
+
+  test("Test refresh token fail (bad refresh token sent)", async () => {
+    const response = await request(app)
+      .post(baseUrl + "/refresh")
+      .send();
+    expect(response.statusCode).toBe(400);
   });
 
   test("Test refresh token", async () => {
