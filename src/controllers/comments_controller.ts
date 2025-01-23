@@ -11,7 +11,7 @@ class CommentsController extends BaseController<IComments> {
       const postId = req.params.id;
       try {
         const comment = await commentsModel.find({ postId: postId });
-        if (comment) {
+        if (comment.length > 0) {
           res.send(comment);
         } else {
           res.status(404).send("Post not found");
