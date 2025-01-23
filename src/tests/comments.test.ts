@@ -76,7 +76,9 @@ describe("Comments Tests", () => {
   });
 
   test("Comments get by post id", async () => {
-    const response = await request(app).get("/comments/byPost/" + testComments[0].postId);
+    const response = await request(app).get(
+      "/comments/byPost/" + testComments[0].postId
+    );
     expect(response.statusCode).toBe(200);
     expect(response.body[0].comment).toBe(testComments[0].comment);
     expect(response.body[0].postId).toBe(testComments[0].postId);
@@ -84,7 +86,9 @@ describe("Comments Tests", () => {
   });
 
   test("Comments get by post id (post doesn't exist)", async () => {
-    const response = await request(app).get("/comments/byPost/" + 'NONEXISTENT');
+    const response = await request(app).get(
+      "/comments/byPost/" + "NONEXISTENT"
+    );
     expect(response.statusCode).toBe(404);
   });
 
@@ -102,10 +106,14 @@ describe("Comments Tests", () => {
     const response = await request(app)
       .post("/comments")
       .set({ authorization: "JWT " + testUser.token })
-      .send({ postId: testComments[0].postId, comment: 'Hello', owner: 'Lior' });
+      .send({
+        postId: testComments[0].postId,
+        comment: "Hello",
+        owner: "Lior",
+      });
     expect(response.statusCode).toBe(201);
   });
-  
+
   test("Test Create Comment (Fail - Missing Fields)", async () => {
     const response = await request(app)
       .post("/comments")

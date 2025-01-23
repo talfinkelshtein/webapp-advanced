@@ -53,18 +53,31 @@ describe("Posts Tests", () => {
     postId = response.body._id;
   });
 
+  test("Test Update Post", async () => {
+    const response = await request(app)
+      .put("/posts/" + postId)
+      .set({ authorization: "JWT " + testUser.token })
+      .send({
+        title: "Test Post updated",
+      });
+    expect(response.statusCode).toBe(201);
+    expect(response.body.title).toBe("Test Post updated");
+    expect(response.body.content).toBe("Test Content");
+    postId = response.body._id;
+  });
+
   test("Test get post by owner", async () => {
     const response = await request(app).get("/posts?owner=" + testUser.email);
     expect(response.statusCode).toBe(200);
     expect(response.body.length).toBe(1);
-    expect(response.body[0].title).toBe("Test Post");
+    expect(response.body[0].title).toBe("Test Post updated");
     expect(response.body[0].content).toBe("Test Content");
   });
 
   test("Test get post by id", async () => {
     const response = await request(app).get("/posts/" + postId);
     expect(response.statusCode).toBe(200);
-    expect(response.body.title).toBe("Test Post");
+    expect(response.body.title).toBe("Test Post updated");
     expect(response.body.content).toBe("Test Content");
   });
 
