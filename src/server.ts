@@ -2,6 +2,7 @@ import dotenv from "dotenv"
 dotenv.config();
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
+import cors from "cors";
 import express, { Express } from "express";
 import postsRoute from "./routes/posts_route";
 import commentsRoute from "./routes/comments_routes";
@@ -10,6 +11,7 @@ import swaggerJsDoc from "swagger-jsdoc";
 import swaggerUI from "swagger-ui-express";
 
 const app = express();
+app.use(cors())
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use("/posts", postsRoute);
