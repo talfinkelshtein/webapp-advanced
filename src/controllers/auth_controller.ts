@@ -48,7 +48,6 @@ const googleSignin = async (req: Request, res: Response) => {
     } catch (err) {
       res.sendStatus(400).send("Missing email or password");
     }
-    res.status(StatusCodes.OK).send(req.body);
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST).send(err);
   }
