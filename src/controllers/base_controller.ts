@@ -1,77 +1,59 @@
 import { Request, Response } from "express";
 import { Model } from "mongoose";
+import { StatusCodes } from "http-status-codes";
 
 class BaseController<T> {
-    model: Model<T>;
-    constructor(model: any) {
+    protected model: Model<T>;
+
+    constructor(model: Model<T>) {
         this.model = model;
     }
 
-    getAll = async (req: Request, res: Response) => {
-        const filter = req.query.owner;
+    async getAll(req: Request, res: Response): Promise<void> {
         try {
-            if (filter) {
-                const item = await this.model.find({ owner: filter });
-                res.send(item);
-            } else {
-                const items = await this.model.find();
-                res.send(items);
-            }
+            const filter = req.query.owner ? { owner: req.query.owner } : {};
+            const items = await this.model.find(filter);
+            res.send(items);
         } catch (error) {
-            res.status(400).send(error);
+            res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
-    };
+    }
 
-    getById = async (req: Request, res: Response) => {
-        const id = req.params.id;
-
+    async getById(req: Request, res: Response): Promise<void> {
         try {
-            const item = await this.model.findById(id);
-            if (item != null) {
-                res.send(item);
-            } else {
-                res.status(404).send("not found");
-            }
+            const item = await this.model.findById(req.params.id);
+            item ? res.send(item) : res.status(StatusCodes.NOT_FOUND).send("Not found");
         } catch (error) {
-            res.status(400).send(error);
+            res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
-    };
+    }
 
-    create = async (req: Request, res: Response) => {
-        const body = req.body;
+    async create(req: Request, res: Response): Promise<void> {
         try {
-            const item = await this.model.create(body);
-            res.status(201).send(item);
+            const item = await this.model.create(req.body);
+            res.status(StatusCodes.CREATED).send(item);
         } catch (error) {
-            res.status(400).send(error);
+            res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
-    };
+    }
 
-    updateItem = async (req: Request, res: Response) => {
-        const id = req.params.id;
-        const body = req.body;
+    async updateItem(req: Request, res: Response): Promise<void> {
         try {
-          const item = await this.model.findByIdAndUpdate(id, body, {
-            new: true,
-          });
-          res.status(201).send(item);
+            const item = await this.model.findByIdAndUpdate(req.params.id, req.body, { new: true });
+            item ? res.status(StatusCodes.OK).send(item) : res.status(StatusCodes.NOT_FOUND).send("Not found");
         } catch (error) {
-          res.status(400).send(error);
+            res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
-      };
-      
+    }
 
-    async deleteItem(req: Request, res: Response) {
-        const id = req.params.id;
+    async deleteItem(req: Request, res: Response): Promise<void> {
         try {
-            const rs = await this.model.findByIdAndDelete(id);
-            res.status(200).send(rs);
+            const result = await this.model.findByIdAndDelete(req.params.id);
+            result ? res.status(StatusCodes.OK).send(result) : res.status(StatusCodes.NOT_FOUND).send("Not found");
         } catch (error) {
-            res.status(400).send(error);
+            res.status(StatusCodes.BAD_REQUEST).json({ error });
         }
-    };
-
+    }
 }
 
-
-export default BaseController
+export default BaseController;

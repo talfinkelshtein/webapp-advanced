@@ -9,14 +9,18 @@ import commentsRoute from "./routes/comments_routes";
 import authRoutes from "./routes/auth_routes";
 import swaggerJsDoc from "swagger-jsdoc";
 import swaggerUI from "swagger-ui-express";
+import path from "path";
 
 const app = express();
 app.use(cors())
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use("/uploads", express.static(path.join(__dirname, "../uploads"))); 
 app.use("/posts", postsRoute);
 app.use("/comments", commentsRoute);
 app.use("/auth", authRoutes);
+app.use(express.urlencoded({ extended: true }));
+
 
 const options = {
   definition: {
