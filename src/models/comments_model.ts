@@ -1,12 +1,12 @@
 import mongoose from "mongoose";
 
-export interface IComments {
+export interface IComment {
   comment: string;
   owner: string;
   postId: string;
 }
 
-const commentsSchema = new mongoose.Schema<IComments>({
+export const commentSchema = new mongoose.Schema<IComment>({
   comment: {
     type: String,
     required: true,
@@ -21,6 +21,6 @@ const commentsSchema = new mongoose.Schema<IComments>({
   },
 });
 
-const commentsModel = mongoose.model<IComments>("Comments", commentsSchema);
+const commentsModel = mongoose.model<IComment>("Comments", commentSchema);
 
 export default commentsModel;

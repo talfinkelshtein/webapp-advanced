@@ -1,21 +1,28 @@
 import mongoose from "mongoose";
+import { commentSchema, IComment } from "./comments_model";
 
 export interface IPost {
-  title: string;
   content: string;
   owner: string;
+  likes: number;
+  comments: IComment[];
+  imagePath: string;
+  plantType: string;
 }
 
 const postSchema = new mongoose.Schema<IPost>({
-  title: {
-    type: String,
-    required: true,
-  },
   content: String,
   owner: {
     type: String,
     required: true,
   },
+  comments: [commentSchema],
+  likes: {
+    type: Number,
+    default: 0,
+  },
+  imagePath: String,
+  plantType: String,
 });
 
 const postModel = mongoose.model<IPost>("Posts", postSchema);

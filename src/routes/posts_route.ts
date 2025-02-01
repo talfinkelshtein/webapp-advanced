@@ -1,6 +1,7 @@
 import express from "express";
 import { authMiddleware } from "../controllers/auth_controller";
-import postsController from "../controllers/posts_controller";
+import postsController from "../controllers/postsController";
+import { uploadMiddleware } from "../middlewares/uploadMiddleware";
 const router = express.Router();
 
 /**
@@ -126,7 +127,7 @@ router.get("/:id", postsController.getById.bind(postsController));
  *       500:
  *         description: Server error
  */
-router.post("/", authMiddleware, postsController.create.bind(postsController));
+router.post("/", authMiddleware, uploadMiddleware,  postsController.create.bind(postsController));
 
 /**
  * @swagger
