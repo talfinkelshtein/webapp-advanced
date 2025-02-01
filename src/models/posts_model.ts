@@ -15,8 +15,12 @@ const postSchema = new mongoose.Schema<IPost>({
     type: String,
     required: true,
   },
+  comments: [commentSchema],
+  likes: {
+    type: Number,
+    default: 0,
+  },
   imagePath: String,
-  comments: [commentSchema]
 });
 
 const postModel = mongoose.model<IPost>("Posts", postSchema);
