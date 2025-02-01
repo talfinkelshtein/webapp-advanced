@@ -1,9 +1,12 @@
 import bcrypt from "bcrypt";
 import { NextFunction, Request, Response } from "express";
+import { OAuth2Client } from "google-auth-library";
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
 import userModel from "../models/users_model";
 import { jwtToken, User } from "../types/auth.types";
+
+const client = new OAuth2Client();
 
 const register = async (req: Request, res: Response) => {
   try {
@@ -15,6 +18,36 @@ const register = async (req: Request, res: Response) => {
       password: hashedPassword,
     });
     res.status(StatusCodes.OK).send(user);
+  } catch (err) {
+    res.status(StatusCodes.BAD_REQUEST).send(err);
+  }
+};
+
+const googleSignin = async (req: Request, res: Response) => {
+  try {
+    const { credential } = req.body;
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken: credential,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      const payload = ticket.getPayload();
+      const email = payload?.email;
+      if (email) {
+        let user = await userModel.findOne({ email: email });
+        if (!user) {
+          user = await userModel.create({
+            email: email,
+            password: "",
+          });
+        }
+        const tokens = generateToken(user._id);
+        res.status(200).send(tokens);
+      }
+      console.log(payload);
+    } catch (err) {
+      res.sendStatus(400).send("Missing email or password");
+    }
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST).send(err);
   }
@@ -197,6 +230,7 @@ export const authMiddleware = (
 
 export default {
   register,
+  googleSignin,
   login,
   refresh,
   logout,

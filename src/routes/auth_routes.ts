@@ -61,6 +61,28 @@ const router = express.Router();
 router.post("/register", authController.register);
 
 /**
+* @swagger
+* /auth/google:
+*   post:
+*     summary: google sign in
+*     tags: [Auth]
+*     requestBody:
+*       required: true
+*       content:
+*         application/json:
+*           schema:
+*             $ref: '#/components/schemas/User'
+*     responses:
+*       200:
+*         description: The new user
+*         content:
+*           application/json:
+*             schema:
+*               $ref: '#/components/schemas/User'
+*/
+router.post("/google", authController.googleSignin);
+
+/**
  * @swagger
  * /auth/login:
  *   post:
