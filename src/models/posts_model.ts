@@ -7,6 +7,7 @@ export interface IPost {
   likes: number;
   comments: IComment[];
   imagePath: string;
+  plantType: string;
 }
 
 const postSchema = new mongoose.Schema<IPost>({
@@ -21,6 +22,7 @@ const postSchema = new mongoose.Schema<IPost>({
     default: 0,
   },
   imagePath: String,
+  plantType: String,
 });
 
 const postModel = mongoose.model<IPost>("Posts", postSchema);
