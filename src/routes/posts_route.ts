@@ -127,7 +127,7 @@ router.get("/:id", postsController.getById.bind(postsController));
  *       500:
  *         description: Server error
  */
-router.post("/", uploadMiddleware,  postsController.create.bind(postsController));
+router.post("/", authMiddleware, uploadMiddleware,  postsController.create.bind(postsController));
 
 /**
  * @swagger

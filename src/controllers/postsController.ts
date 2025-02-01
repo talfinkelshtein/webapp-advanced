@@ -9,8 +9,6 @@ class PostsController extends BaseController<IPost> {
     }
 
     async create(req: Request, res: Response): Promise<void> {
-        console.log("fffffffffff");
-        console.log(req.body);
         if (!req.file) {
             res.status(StatusCodes.BAD_REQUEST).json({ error: "Missing image" });
             return;

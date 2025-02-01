@@ -21,7 +21,6 @@ app.use("/comments", commentsRoute);
 app.use("/auth", authRoutes);
 app.use(express.urlencoded({ extended: true }));
 
-
 const options = {
   definition: {
     openapi: "3.0.0",
