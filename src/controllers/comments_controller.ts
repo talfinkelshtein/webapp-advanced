@@ -1,26 +1,24 @@
+import { StatusCodes } from "http-status-codes";
 import commentsModel, { IComment } from "../models/comments_model";
 import BaseController from "./base_controller";
 import { Request, Response } from "express";
 
 class CommentsController extends BaseController<IComment> {
-    constructor() {
-        super(commentsModel);
-    }
+  constructor() {
+    super(commentsModel);
+  }
 
-    getCommentsByPostId = async (req: Request, res: Response) => {
-      const postId = req.params.id;
-      try {
-        const comment = await commentsModel.find({ postId: postId });
-        if (comment.length > 0) {
-          res.send(comment);
-        } else {
-          res.status(404).send("Post not found");
-        }
-      } catch (error) {
-        res.status(400).send(error);
-      }
-    };
+  getCommentsByPostId = async (req: Request, res: Response): Promise<void> => {
+    const postId = req.params.id;
+
+    try {
+      const comments = await commentsModel.find({ postId });
+      res.status(StatusCodes.OK).json(comments); 
+    } catch (error) {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Failed to retrieve comments" }); // ✅ 500 for server errors
+    }
   };
+};
 
 export default new CommentsController();
 

@@ -39,7 +39,7 @@ class BaseController<T> {
 
     async updateItem(req: Request, res: Response): Promise<void> {
         try {
-            const item = await this.model.findByIdAndUpdate(req.params.id, req.body, { new: true });
+            const item = await this.model.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
             item ? res.status(StatusCodes.OK).send(item) : res.status(StatusCodes.NOT_FOUND).send("Not found");
         } catch (error) {
             res.status(StatusCodes.BAD_REQUEST).json({ error });
