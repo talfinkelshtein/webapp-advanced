@@ -15,7 +15,7 @@ class CommentsController extends BaseController<IComment> {
       const comments = await commentsModel.find({ postId });
       res.status(StatusCodes.OK).json(comments); 
     } catch (error) {
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Failed to retrieve comments" }); // ✅ 500 for server errors
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Failed to retrieve comments" }); 
     }
   };
 };
