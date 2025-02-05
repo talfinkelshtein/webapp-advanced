@@ -9,14 +9,45 @@ class PostsController extends BaseController<IPost> {
     }
 
     async create(req: Request, res: Response): Promise<void> {
-        if (!req.file) {
-            res.status(StatusCodes.BAD_REQUEST).json({ error: "Missing image" });
-            return;
+        try {
+            if (!req.file) {
+                res.status(StatusCodes.BAD_REQUEST).json({ error: "Missing image" });
+                return;
+            }
+    
+            req.body.imagePath = `/uploads/${req.file.filename}`;
+            await super.create(req, res);
+        } catch (error) {
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Failed to create post" });
         }
-
-        req.body.imagePath = `/uploads/${req.file.filename}`;
-        await super.create(req, res);
     }
+    
+    async updateItem(req: Request, res: Response): Promise<void> {
+        try {
+            const updateData: Partial<IPost> = { ...req.body };
+    
+            if (req.file) {
+                updateData.imagePath = `/uploads/${req.file.filename}`;
+            }
+    
+            const updatedPost = await this.model.findByIdAndUpdate(
+                req.params.id,
+                { $set: updateData },
+                { new: true, runValidators: true }
+            );
+    
+            if (!updatedPost) {
+                res.status(StatusCodes.NOT_FOUND).json({ error: "Post not found" });
+                return;
+            }
+    
+            res.status(StatusCodes.OK).json(updatedPost);
+        } catch (error) {
+            console.error("Update Post Error:", error);
+            res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Failed to update post" });
+        }
+    }
+    
 }
 
 export default new PostsController();
