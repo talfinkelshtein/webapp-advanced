@@ -17,13 +17,40 @@
       "console": "integratedTerminal"
     },
     {
-      "name": "Attach to Running Node.js Server",
+      "name": "Run Tests in Debug",
       "type": "node",
-      "request": "attach",
-      "port": 9229,
-      "restart": true,
+      "request": "launch",
+      "runtimeExecutable": "node",
+      "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
+      "args": [
+        "--runInBand",
+        "--config=jest.config.js",
+        "--detectOpenHandles",
+        "--no-cache"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "cwd": "${workspaceFolder}",
       "sourceMaps": true,
-      "outFiles": ["${workspaceFolder}/dist/**/*.js"]
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"],
+      "env": {
+        "NODE_ENV": "development"
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Jest Tests",
+      "program": "${workspaceFolder}/node_modules/jest/bin/jest.js",
+      "args": [
+        "--runInBand",
+        "--no-cache",
+        "--detectOpenHandles",
+        "src/tests/comments.test.ts" // Change this to the test file you want to debug
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "disableOptimisticBPs": true
     }
   ]
 }

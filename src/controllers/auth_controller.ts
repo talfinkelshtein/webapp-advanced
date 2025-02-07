@@ -54,7 +54,9 @@ const googleSignin = async (req: Request, res: Response) => {
 };
 
 export const generateToken = (userId: string): jwtToken | null => {
-  if (!process.env.TOKEN_SECRET) return null;
+  if (!process.env.TOKEN_SECRET) {
+    return null;
+  }
 
   const randomNum = Math.random().toString();
 
@@ -90,13 +92,17 @@ export const login = async (req: Request, res: Response) => {
       res.status(StatusCodes.BAD_REQUEST).send("wrong username or password");
       return;
     }
+    const userId = user._id.toString();
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       res.status(StatusCodes.BAD_REQUEST).send("wrong username or password");
       return;
     }
-    const tokens = generateToken(user._id);
+
+    const tokens = generateToken(userId);
+
     if (!tokens || !process.env.TOKEN_SECRET) {
+      console.log("Token generation in login failed -", tokens);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Server Error");
       return;
     }
@@ -108,7 +114,7 @@ export const login = async (req: Request, res: Response) => {
     res.status(StatusCodes.OK).send({
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
-      _id: user._id,
+      _id: user._id.toString(),
     });
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST).send(err);
@@ -127,31 +133,31 @@ export const verifyRefreshToken = (refreshToken: string | undefined) => {
       process.env.TOKEN_SECRET,
       async (err: any, payload: any) => {
         if (err) {
-          reject("fail");
+          reject("expired");
           return;
         }
+
         const { _id } = payload;
         try {
           const user = await userModel.findById(_id);
-          if (!user) {
-            reject("fail");
+
+          if (
+            !user ||
+            !user.refreshToken ||
+            !user.refreshToken.includes(refreshToken)
+          ) {
+            reject("unauthorized");
             return;
           }
-          if (!user.refreshToken || !user.refreshToken.includes(refreshToken)) {
-            user.refreshToken = [];
-            await user.save();
-            reject("fail");
-            return;
-          }
-          const tokens = user.refreshToken!.filter(
+
+          user.refreshToken = user.refreshToken.filter(
             (token) => token !== refreshToken
           );
-          user.refreshToken = tokens;
+          await user.save();
 
           resolve(user);
         } catch (err) {
           reject("fail");
-          return;
         }
       }
     );
@@ -161,8 +167,13 @@ export const verifyRefreshToken = (refreshToken: string | undefined) => {
 const logout = async (req: Request, res: Response) => {
   try {
     const user = await verifyRefreshToken(req.body.refreshToken);
-    await user.save();
-    res.status(StatusCodes.OK).send("success");
+
+    if (user) {
+      user.refreshToken = [];
+      await user.save();
+    }
+
+    res.status(StatusCodes.OK).send("Logged out successfully");
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST).send("fail");
   }
@@ -171,28 +182,37 @@ const logout = async (req: Request, res: Response) => {
 export const refresh = async (req: Request, res: Response) => {
   try {
     const user = await verifyRefreshToken(req.body.refreshToken);
+
     if (!user) {
-      res.status(StatusCodes.BAD_REQUEST).send("fail");
+      res.status(StatusCodes.UNAUTHORIZED).send("Unauthorized access");
       return;
     }
-    const tokens = generateToken(user._id);
 
+    const tokens = generateToken(user._id);
     if (!tokens) {
+      console.log("Token generation in refresh failed");
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Server Error");
       return;
     }
-    if (!user.refreshToken) {
-      user.refreshToken = [];
-    }
-    user.refreshToken.push(tokens.refreshToken);
+
+    user.refreshToken = [tokens.refreshToken];
     await user.save();
+
     res.status(StatusCodes.OK).send({
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
       _id: user._id,
     });
   } catch (err) {
-    res.status(StatusCodes.BAD_REQUEST).send("fail");
+    if (err === "expired") {
+      res
+        .status(StatusCodes.UNAUTHORIZED)
+        .send("Refresh token expired, please log in again");
+    } else if (err === "unauthorized") {
+      res.status(StatusCodes.UNAUTHORIZED).send("Invalid refresh token");
+    } else {
+      res.status(StatusCodes.BAD_REQUEST).send("fail");
+    }
   }
 };
 
@@ -214,6 +234,7 @@ export const authMiddleware = (
   }
 
   if (!process.env.TOKEN_SECRET) {
+    console.log("Auth middleware failed");
     res.status(StatusCodes.INTERNAL_SERVER_ERROR).send("Server Error");
     return;
   }

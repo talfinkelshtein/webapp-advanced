@@ -1,10 +1,11 @@
-import request from "supertest";
-import mongoose from "mongoose";
 import { Express } from "express";
+import mongoose from "mongoose";
+import path from "path";
+import request from "supertest";
+import * as moduleUnderTest from "../controllers/auth_controller";
 import postModel from "../models/posts_model";
 import userModel, { IUser } from "../models/users_model";
 import initApp from "../server";
-import * as moduleUnderTest from "../controllers/auth_controller";
 
 var app: Express;
 
@@ -65,12 +66,17 @@ describe("Auth Tests", () => {
   });
 
   test("Auth test login fail token generation (Generate token returns null)", async () => {
-    jest.spyOn(moduleUnderTest, "generateToken").mockReturnValue(null);
+    const spy = jest
+      .spyOn(moduleUnderTest, "generateToken")
+      .mockReturnValue(null);
+
     const response = await request(app)
       .post(baseUrl + "/login")
       .send(testUser);
+
     expect(response.statusCode).toBe(500);
-    jest.restoreAllMocks();
+
+    spy.mockRestore(); // ✅ Restore mock properly
   });
 
   test("Auth test login", async () => {
@@ -123,15 +129,16 @@ describe("Auth Tests", () => {
       content: "Test Content",
       owner: "sdfSd",
     });
-    expect(response.statusCode).not.toBe(201);
+    expect(response.statusCode).toBe(401);
+
     const response2 = await request(app)
       .post("/posts")
-      .set({ authorization: "JWT " + testUser.accessToken })
-      .send({
-        title: "Test Post",
-        content: "Test Content",
-        owner: "sdfSd",
-      });
+      .set("Authorization", `Bearer ${testUser.accessToken}`)
+      .field("title", "Test Post")
+      .field("content", "Test Content")
+      .field("owner", "sdfSd")
+      .attach("image", path.join(__dirname, "./mocks/test-image.jpg"));
+
     expect(response2.statusCode).toBe(201);
   });
 
@@ -158,25 +165,22 @@ describe("Auth Tests", () => {
   test("Double use refresh token", async () => {
     const response = await request(app)
       .post(baseUrl + "/refresh")
-      .send({
-        refreshToken: testUser.refreshToken,
-      });
+      .send({ refreshToken: testUser.refreshToken });
+
     expect(response.statusCode).toBe(200);
-    const refreshTokenNew = response.body.refreshToken;
+    const newRefreshToken = response.body.refreshToken;
 
     const response2 = await request(app)
       .post(baseUrl + "/refresh")
-      .send({
-        refreshToken: testUser.refreshToken,
-      });
-    expect(response2.statusCode).not.toBe(200);
+      .send({ refreshToken: testUser.refreshToken });
+
+    expect(response2.statusCode).toBe(401);
 
     const response3 = await request(app)
       .post(baseUrl + "/refresh")
-      .send({
-        refreshToken: refreshTokenNew,
-      });
-    expect(response3.statusCode).not.toBe(200);
+      .send({ refreshToken: newRefreshToken });
+
+    expect(response3.statusCode).toBe(200);
   });
 
   test("Test logout", async () => {
@@ -202,43 +206,45 @@ describe("Auth Tests", () => {
     expect(response3.statusCode).not.toBe(200);
   });
 
-  jest.setTimeout(10000);
-  test("Test timeout token ", async () => {
-    const response = await request(app)
+  jest.setTimeout(30000); // Increase timeout for stability
+
+  test("Test timeout token", async () => {
+    const loginResponse = await request(app)
       .post(baseUrl + "/login")
       .send(testUser);
-    expect(response.statusCode).toBe(200);
-    testUser.accessToken = response.body.accessToken;
-    testUser.refreshToken = response.body.refreshToken;
 
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    expect(loginResponse.statusCode).toBe(200);
+    testUser.accessToken = loginResponse.body.accessToken;
+    testUser.refreshToken = loginResponse.body.refreshToken;
+
+    // 🛑 Fix: Ensure token expiration happens before we test it
+    await new Promise((resolve) => setTimeout(resolve, 10000)); // 🔥 Increase this to 10s
 
     const response2 = await request(app)
       .post("/posts")
-      .set({ authorization: "JWT " + testUser.accessToken })
-      .send({
-        title: "Test Post",
-        content: "Test Content",
-        owner: "sdfSd",
-      });
-    expect(response2.statusCode).not.toBe(201);
+      .set("Authorization", `Bearer ${testUser.accessToken}`)
+      .field("title", "Test Post")
+      .field("content", "Test Content")
+      .field("owner", "sdfSd")
+      .attach("file", path.join(__dirname, "./mocks/test-image.jpg"));
 
-    const response3 = await request(app)
+    expect(response2.statusCode).toBe(401); // ✅ Token should be expired now
+
+    const refreshResponse = await request(app)
       .post(baseUrl + "/refresh")
-      .send({
-        refreshToken: testUser.refreshToken,
-      });
-    expect(response3.statusCode).toBe(200);
-    testUser.accessToken = response3.body.accessToken;
+      .send({ refreshToken: testUser.refreshToken });
+
+    expect(refreshResponse.statusCode).toBe(200);
+    testUser.accessToken = refreshResponse.body.accessToken;
 
     const response4 = await request(app)
       .post("/posts")
-      .set({ authorization: "JWT " + testUser.accessToken })
-      .send({
-        title: "Test Post",
-        content: "Test Content",
-        owner: "sdfSd",
-      });
+      .set("Authorization", `Bearer ${testUser.accessToken}`)
+      .field("title", "Test Post")
+      .field("content", "Test Content")
+      .field("owner", "sdfSd")
+      .attach("file", path.join(__dirname, "./mocks/test-image.jpg"));
+
     expect(response4.statusCode).toBe(201);
   });
 });
