@@ -1,10 +1,10 @@
-import request from "supertest";
-import initApp from "../server";
-import mongoose from "mongoose";
-import commentsModel from "../models/comments_model";
 import { Express } from "express";
-import testComments from "./test_comments.json";
+import mongoose from "mongoose";
+import request from "supertest";
+import commentsModel from "../models/comments_model";
 import userModel, { IUser } from "../models/users_model";
+import initApp from "../server";
+import testComments from "./test_comments.json";
 
 var app: Express;
 
@@ -43,14 +43,14 @@ describe("Comments Tests", () => {
   test("Test Create Comment", async () => {
     const response = await request(app)
       .post("/comments")
-      .set({ authorization: "JWT " + testUser.token })
+      .set({ authorization: "bearer " + testUser.token })
       .send({
-        comment: testComments[0].comment,
+        content: testComments[0].content,
         postId: testComments[0].postId,
         owner: testUser.email,
       });
     expect(response.statusCode).toBe(201);
-    expect(response.body.comment).toBe(testComments[0].comment);
+    expect(response.body.content).toBe(testComments[0].content);
     expect(response.body.postId).toBe(testComments[0].postId);
     expect(response.body.owner).toBe(testUser.email);
     commentId = response.body._id;
@@ -62,7 +62,7 @@ describe("Comments Tests", () => {
     );
     expect(response.statusCode).toBe(200);
     expect(response.body.length).toBe(1);
-    expect(response.body[0].comment).toBe(testComments[0].comment);
+    expect(response.body[0].content).toBe(testComments[0].content);
     expect(response.body[0].postId).toBe(testComments[0].postId);
     expect(response.body[0].owner).toBe(testComments[0].owner);
   });
@@ -70,7 +70,7 @@ describe("Comments Tests", () => {
   test("Comments get by id", async () => {
     const response = await request(app).get("/comments/" + commentId);
     expect(response.statusCode).toBe(200);
-    expect(response.body.comment).toBe(testComments[0].comment);
+    expect(response.body.content).toBe(testComments[0].content);
     expect(response.body.postId).toBe(testComments[0].postId);
     expect(response.body.owner).toBe(testComments[0].owner);
   });
@@ -80,7 +80,7 @@ describe("Comments Tests", () => {
       "/comments/byPost/" + testComments[0].postId
     );
     expect(response.statusCode).toBe(200);
-    expect(response.body[0].comment).toBe(testComments[0].comment);
+    expect(response.body[0].content).toBe(testComments[0].content);
     expect(response.body[0].postId).toBe(testComments[0].postId);
     expect(response.body[0].owner).toBe(testComments[0].owner);
   });
@@ -89,13 +89,14 @@ describe("Comments Tests", () => {
     const response = await request(app).get(
       "/comments/byPost/" + "NONEXISTENT"
     );
-    expect(response.statusCode).toBe(404);
+    expect(response.statusCode).toBe(200);
+    expect(response.body.length).toBe(0);
   });
 
   test("Test Delete Comment", async () => {
     const response = await request(app)
       .delete("/comments/" + commentId)
-      .set({ authorization: "JWT " + testUser.token });
+      .set({ authorization: "bearer " + testUser.token });
     expect(response.statusCode).toBe(200);
 
     const response2 = await request(app).get("/comments/" + commentId);
@@ -105,10 +106,10 @@ describe("Comments Tests", () => {
   test("Test Create Comment", async () => {
     const response = await request(app)
       .post("/comments")
-      .set({ authorization: "JWT " + testUser.token })
+      .set({ authorization: "bearer " + testUser.token })
       .send({
         postId: testComments[0].postId,
-        comment: "Hello",
+        content: "Hello",
         owner: "Lior",
       });
     expect(response.statusCode).toBe(201);
@@ -117,7 +118,7 @@ describe("Comments Tests", () => {
   test("Test Create Comment (Fail - Missing Fields)", async () => {
     const response = await request(app)
       .post("/comments")
-      .set({ authorization: "JWT " + testUser.token })
+      .set({ authorization: "bearer " + testUser.token })
       .send({ postId: testComments[0].postId }); // Missing 'Comment' and 'Owner' field
     expect(response.statusCode).toBe(400);
   });

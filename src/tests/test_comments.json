@@ -1,16 +1,16 @@
 [
     {
-        "comment": "This is a comment",
+        "content": "This is a comment",
         "owner": "test@user.com",
         "postId": "safgsefdgsdfgsd"
     },
     {
-        "comment": "This is another comment",
+        "content": "This is another comment",
         "owner": "test@user.com",
         "postId": "safgsefdgsdfgsd"
     },
     {
-        "comment": "This is another comment",
+        "content": "This is another comment",
         "owner": "test@user.com",
         "postId": "safgsefdgsdfgsd"
     }
