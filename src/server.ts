@@ -10,6 +10,7 @@ import authRoutes from "./routes/auth_routes";
 import swaggerJsDoc from "swagger-jsdoc";
 import swaggerUI from "swagger-ui-express";
 import path from "path";
+import usersRoutes from "./routes/usersRoutes";
 
 const app = express();
 app.use(cors())
@@ -19,6 +20,7 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use("/posts", postsRoute);
 app.use("/comments", commentsRoute);
 app.use("/auth", authRoutes);
+app.use("/users", usersRoutes);
 app.use(express.urlencoded({ extended: true }));
 
 const options = {
