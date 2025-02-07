@@ -141,19 +141,19 @@ export const verifyRefreshToken = (refreshToken: string | undefined) => {
         try {
           const user = await userModel.findById(_id);
 
-          if (
-            !user ||
-            !user.refreshToken ||
-            !user.refreshToken.includes(refreshToken)
-          ) {
+          if (!user) {
             reject("unauthorized");
+            return;
+          }
+
+          if (!user.refreshToken || !user.refreshToken.length) {
+            reject("expired");
             return;
           }
 
           user.refreshToken = user.refreshToken.filter(
             (token) => token !== refreshToken
           );
-          await user.save();
 
           resolve(user);
         } catch (err) {
@@ -184,7 +184,9 @@ export const refresh = async (req: Request, res: Response) => {
     const user = await verifyRefreshToken(req.body.refreshToken);
 
     if (!user) {
-      res.status(StatusCodes.UNAUTHORIZED).send("Unauthorized access");
+      res
+        .status(StatusCodes.UNAUTHORIZED)
+        .send("Session expired, please log in again");
       return;
     }
 
@@ -196,7 +198,11 @@ export const refresh = async (req: Request, res: Response) => {
     }
 
     user.refreshToken = [tokens.refreshToken];
-    await user.save();
+
+    await userModel.updateOne(
+      { _id: user._id },
+      { $set: { refreshToken: [tokens.refreshToken] } }
+    );
 
     res.status(StatusCodes.OK).send({
       accessToken: tokens.accessToken,
