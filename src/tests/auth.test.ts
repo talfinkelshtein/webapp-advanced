@@ -76,7 +76,7 @@ describe("Auth Tests", () => {
 
     expect(response.statusCode).toBe(500);
 
-    spy.mockRestore(); // ✅ Restore mock properly
+    spy.mockRestore(); 
   });
 
   test("Auth test login", async () => {
@@ -206,7 +206,7 @@ describe("Auth Tests", () => {
     expect(response3.statusCode).not.toBe(200);
   });
 
-  jest.setTimeout(30000); // Increase timeout for stability
+  jest.setTimeout(30000); 
 
   test("Test timeout token", async () => {
     const loginResponse = await request(app)
@@ -217,8 +217,8 @@ describe("Auth Tests", () => {
     testUser.accessToken = loginResponse.body.accessToken;
     testUser.refreshToken = loginResponse.body.refreshToken;
 
-    // 🛑 Fix: Ensure token expiration happens before we test it
-    await new Promise((resolve) => setTimeout(resolve, 10000)); // 🔥 Increase this to 10s
+    
+    await new Promise((resolve) => setTimeout(resolve, 10000)); 
 
     const response2 = await request(app)
       .post("/posts")
@@ -228,7 +228,7 @@ describe("Auth Tests", () => {
       .field("owner", "sdfSd")
       .attach("file", path.join(__dirname, "./mocks/test-image.jpg"));
 
-    expect(response2.statusCode).toBe(401); // ✅ Token should be expired now
+    expect(response2.statusCode).toBe(401); 
 
     const refreshResponse = await request(app)
       .post(baseUrl + "/refresh")
