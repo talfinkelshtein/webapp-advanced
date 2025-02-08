@@ -5,22 +5,18 @@ import BaseController from "./base_controller";
 
 class CommentsController extends BaseController<IComment> {
   constructor() {
-    super(commentsModel);
+    super(commentsModel, "owner");
   }
 
-  getCommentsByPostId = async (req: Request, res: Response): Promise<void> => {
-    const postId = req.params.id;
-
+  async getCommentsByPostId(req: Request, res: Response): Promise<void> {
     try {
-      const comments = await commentsModel.find({ postId });
+      const comments = await this.model.find({ postId: req.params.id }).populate("owner", "username profilePicture");
       res.status(StatusCodes.OK).json(comments);
     } catch (error) {
-      console.log("Get Comments Error:", error);
-      res
-        .status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .json({ error: "Failed to retrieve comments" });
+      console.error("Get Comments Error:", error);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Failed to retrieve comments" });
     }
-  };
+  }
 }
 
 export default new CommentsController();
