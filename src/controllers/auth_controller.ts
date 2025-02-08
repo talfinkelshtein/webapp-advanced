@@ -44,7 +44,6 @@ const googleSignin = async (req: Request, res: Response) => {
         const tokens = generateToken(user._id);
         res.status(200).send(tokens);
       }
-      console.log(payload);
     } catch (err) {
       res.sendStatus(400).send("Missing email or password");
     }

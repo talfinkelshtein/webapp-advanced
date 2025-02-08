@@ -14,7 +14,7 @@ const postSchema = new Schema<IPost>(
     content: { type: String, required: true },
     owner: { type: mongoose.Schema.Types.ObjectId, ref: "Users", required: true },    likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "Users", default: [] }], 
     imagePath: { type: String, required: true },
-    plantType: { type: String, required: true },
+    plantType: { type: String },
   },
   { timestamps: true } 
 );

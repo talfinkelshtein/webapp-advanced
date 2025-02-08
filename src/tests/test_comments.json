@@ -1,17 +1,18 @@
 [
     {
-        "content": "This is a comment",
-        "owner": "test@user.com",
-        "postId": "safgsefdgsdfgsd"
+      "content": "This is a test comment",
+      "owner": "__USER_ID__",
+      "postId": "__POST_ID__"
     },
     {
-        "content": "This is another comment",
-        "owner": "test@user.com",
-        "postId": "safgsefdgsdfgsd"
+      "content": "This is another comment",
+      "owner": "__USER_ID__",
+      "postId": "__POST_ID__"
     },
     {
-        "content": "This is another comment",
-        "owner": "test@user.com",
-        "postId": "safgsefdgsdfgsd"
+      "content": "This is another comment",
+      "owner": "__USER_ID__",
+      "postId": "__POST_ID__"
     }
-]
+  ]
+  

@@ -12,7 +12,7 @@ type User = IUser & { token?: string };
 const testUser: User = {
   email: "test@user.com",
   password: "testpassword",
-  username: "testuser",
+  username: "test",
 };
 
 beforeAll(async () => {
@@ -22,6 +22,7 @@ beforeAll(async () => {
   await userModel.deleteMany();
   await request(app).post("/auth/register").send(testUser);
   const res = await request(app).post("/auth/login").send(testUser);
+  testUser._id = res.body._id;
   testUser.token = res.body.accessToken;
   expect(testUser.token).toBeDefined();
 });
@@ -44,15 +45,21 @@ describe("Posts Tests", () => {
     const response = await request(app)
       .post("/posts")
       .set({ authorization: "bearer " + testUser.token })
-      .field("title", "Test Post")
+      .field("plantType", "Test Plant Type")
       .field("content", "Test Content")
-      .field("owner", testUser.email)
+      .field("owner", testUser._id as string) 
       .attach("image", path.join(__dirname, "./mocks/test-image.jpg"));
 
     expect(response.statusCode).toBe(201);
     expect(response.body.content).toBe("Test Content");
+
+    expect(response.body.owner).toMatchObject({
+      _id: testUser._id,
+      username: testUser.username,
+    });
+
     postId = response.body.id;
-  });
+});
 
   test("Test Update Post", async () => {
     const response = await request(app)
@@ -67,7 +74,7 @@ describe("Posts Tests", () => {
   });
 
   test("Test get post by owner", async () => {
-    const response = await request(app).get("/posts?owner=" + testUser.email);
+    const response = await request(app).get("/posts?owner=" + testUser._id);
     expect(response.statusCode).toBe(200);
     expect(response.body.length).toBe(1);
     expect(response.body[0].content).toBe("Test Content");
@@ -85,7 +92,7 @@ describe("Posts Tests", () => {
       .set({ authorization: "bearer " + testUser.token })
       .field("title", "Test Post 2")
       .field("content", "Test Content 2")
-      .field("owner", "TestOwner2")
+      .field("owner", testUser._id as string)
       .attach("image", path.join(__dirname, "./mocks/test-image.jpg"));
 
     expect(response.statusCode).toBe(201);
