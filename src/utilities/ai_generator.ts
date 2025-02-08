@@ -34,7 +34,7 @@ export const generateFlowerDescription = async (
       },
       {
         headers: {
-          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+          Authorization: `Bearer ${process.env.AI_KEY}`,
           "Content-Type": "application/json",
         },
       }
