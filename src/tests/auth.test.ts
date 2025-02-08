@@ -76,7 +76,7 @@ describe("Auth Tests", () => {
 
     expect(response.statusCode).toBe(500);
 
-    spy.mockRestore(); 
+    spy.mockRestore();
   });
 
   test("Auth test login", async () => {
@@ -133,7 +133,7 @@ describe("Auth Tests", () => {
 
     const response2 = await request(app)
       .post("/posts")
-      .set("Authorization", `Bearer ${testUser.accessToken}`)
+      .set("Authorization", `bearer ${testUser.accessToken}`)
       .field("title", "Test Post")
       .field("content", "Test Content")
       .field("owner", "sdfSd")
@@ -206,8 +206,6 @@ describe("Auth Tests", () => {
     expect(response3.statusCode).not.toBe(200);
   });
 
-  jest.setTimeout(5000)
-  
   test("Test timeout token", async () => {
     const loginResponse = await request(app)
       .post(baseUrl + "/login")
@@ -217,18 +215,14 @@ describe("Auth Tests", () => {
     testUser.accessToken = loginResponse.body.accessToken;
     testUser.refreshToken = loginResponse.body.refreshToken;
 
-    
-    await new Promise((resolve) => setTimeout(resolve, 10000)); 
+    await new Promise((resolve) => setTimeout(resolve, 5000));
 
     const response2 = await request(app)
       .post("/posts")
-      .set("Authorization", `Bearer ${testUser.accessToken}`)
-      .field("title", "Test Post")
-      .field("content", "Test Content")
-      .field("owner", "sdfSd")
-      .attach("file", path.join(__dirname, "./mocks/test-image.jpg"));
+      .set("Authorization", `bearer ${testUser.accessToken}`)
 
-    expect(response2.statusCode).toBe(401); 
+    expect(response2.text).toContain("Access Denied");
+    expect(response2.statusCode).toBe(401);
 
     const refreshResponse = await request(app)
       .post(baseUrl + "/refresh")
@@ -239,11 +233,11 @@ describe("Auth Tests", () => {
 
     const response4 = await request(app)
       .post("/posts")
-      .set("Authorization", `Bearer ${testUser.accessToken}`)
+      .set("Authorization", `bearer ${testUser.accessToken}`)
       .field("title", "Test Post")
       .field("content", "Test Content")
       .field("owner", "sdfSd")
-      .attach("file", path.join(__dirname, "./mocks/test-image.jpg"));
+      .attach("image", path.join(__dirname, "./mocks/test-image.jpg"));
 
     expect(response4.statusCode).toBe(201);
   });

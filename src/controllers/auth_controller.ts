@@ -146,7 +146,11 @@ export const verifyRefreshToken = (refreshToken: string | undefined) => {
             return;
           }
 
-          if (!user.refreshToken || !user.refreshToken.length) {
+          if (
+            !user.refreshToken ||
+            !user.refreshToken.length ||
+            !user.refreshToken.includes(refreshToken)
+          ) {
             reject("expired");
             return;
           }
