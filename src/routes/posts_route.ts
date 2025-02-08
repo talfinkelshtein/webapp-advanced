@@ -203,4 +203,99 @@ router.delete(
  */
 router.put("/:id", postsController.updateItem.bind(postsController));
 
+/**
+ * @swagger
+ * /posts/{id}/hasLiked/{userId}:
+ *   get:
+ *     summary: Check if a user has liked a post
+ *     description: Returns true if the user has liked the post
+ *     tags:
+ *       - Posts
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the post
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the user
+ *     responses:
+ *       200:
+ *         description: Like status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 hasLiked:
+ *                   type: boolean
+ *                   description: Whether the user has liked the post
+ *       404:
+ *         description: Post not found
+ *       500:
+ *         description: Server error
+ */
+router.get(
+  "/:id/hasLiked/:userId",
+  authMiddleware,
+  postsController.hasLiked.bind(postsController)
+);
+
+/**
+ * @swagger
+ * /posts/{id}/toggleLike/{userId}:
+ *   post:
+ *     summary: Toggle like for a post
+ *     description: Toggles the like for a user on a post
+ *     tags:
+ *       - Posts
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the post
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the user
+ *     responses:
+ *       200:
+ *         description: Like toggled successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Result of the toggle action
+ *                 likedBy:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                     description: User IDs who liked the post
+ *       404:
+ *         description: Post not found
+ *       500:
+ *         description: Server error
+ */
+router.post(
+  "/:id/toggleLike/:userId",
+  authMiddleware,
+  postsController.toggleLike.bind(postsController)
+);
+
 export default router;
