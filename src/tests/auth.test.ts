@@ -133,7 +133,7 @@ describe("Auth Tests", () => {
 
     const response2 = await request(app)
       .post("/posts")
-      .set("Authorization", `Bearer ${testUser.accessToken}`)
+      .set("Authorization", `bearer ${testUser.accessToken}`)
       .field("title", "Test Post")
       .field("content", "Test Content")
       .field("owner", "sdfSd")
