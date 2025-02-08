@@ -49,7 +49,6 @@ export const generateFlowerDescription = async (
     } else {
       console.error("Unexpected Error:", error);
     }
-
     res
       .status(StatusCodes.INTERNAL_SERVER_ERROR)
       .json({ error: "Failed to fetch description" });
