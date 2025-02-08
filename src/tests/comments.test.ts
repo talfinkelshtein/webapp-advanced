@@ -21,7 +21,6 @@ beforeAll(async () => {
   await commentsModel.deleteMany();
   await userModel.deleteMany();
 
-  // Register and log in the test user
   await request(app).post("/auth/register").send(testUser);
   const res = await request(app).post("/auth/login").send({
     email: testUser.email,

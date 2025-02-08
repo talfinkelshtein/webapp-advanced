@@ -8,19 +8,37 @@ class CommentsController extends BaseController<IComment> {
     super(commentsModel);
   }
 
-  getCommentsByPostId = async (req: Request, res: Response): Promise<void> => {
+  async getCommentsByPostId(req: Request, res: Response): Promise<void> {
     const postId = req.params.id;
 
     try {
-      const comments = await commentsModel.find({ postId });
+      const comments = await commentsModel
+        .find({ postId })
+        .populate("owner", "username profilePicture"); 
+
       res.status(StatusCodes.OK).json(comments);
     } catch (error) {
-      console.log("Get Comments Error:", error);
+      console.error("Get Comments Error:", error);
       res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .json({ error: "Failed to retrieve comments" });
     }
-  };
+  }
+
+  async create(req: Request, res: Response): Promise<void> {
+    try {
+
+      const newComment = await commentsModel.create(req.body);
+      const populatedComment = await newComment.populate("owner", "username profilePicture"); 
+
+      res.status(StatusCodes.CREATED).json(populatedComment);
+    } catch (error) {
+      console.error("Create Comment Error:", error);
+      res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ error: "Failed to create comment" });
+    }
+  }
 }
 
 export default new CommentsController();
