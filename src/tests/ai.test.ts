@@ -48,7 +48,7 @@ describe("generateFlowerDescription", () => {
       },
       {
         headers: {
-          Authorization: `Bearer ${process.env.AI_KEY}`,
+          Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
           "Content-Type": "application/json",
         },
       }
