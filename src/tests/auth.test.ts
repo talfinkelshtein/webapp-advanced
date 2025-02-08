@@ -32,6 +32,7 @@ type User = IUser & {
 const testUser: User = {
   email: "test@user.com",
   password: "testpassword",
+  username: "testuser"
 };
 
 describe("Auth Tests", () => {

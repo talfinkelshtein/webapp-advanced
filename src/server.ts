@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import path from "path";
 import swaggerJsDoc from "swagger-jsdoc";
 import swaggerUI from "swagger-ui-express";
+import usersRoutes from "./routes/usersRoutes";
 import aiRoutes from "./routes/ai_routes";
 import authRoutes from "./routes/auth_routes";
 import commentsRoute from "./routes/comments_routes";
@@ -20,6 +21,7 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use("/posts", postsRoute);
 app.use("/comments", commentsRoute);
 app.use("/auth", authRoutes);
+app.use("/users", usersRoutes);
 app.use("/ai", aiRoutes);
 app.use(express.urlencoded({ extended: true }));
 
