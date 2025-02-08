@@ -1,11 +1,10 @@
 import mongoose from "mongoose";
-import { commentSchema, IComment } from "./comments_model";
 
 export interface IPost {
   id?: string;
   content: string;
   owner: string;
-  likes: number;
+  likedBy: string[];
   imagePath: string;
   plantType: string;
 }
@@ -16,9 +15,9 @@ const postSchema = new mongoose.Schema<IPost>({
     type: String,
     required: true,
   },
-  likes: {
-    type: Number,
-    default: 0,
+  likedBy: {
+    type: [String],
+    default: [],
   },
   imagePath: String,
   plantType: String,

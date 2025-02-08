@@ -97,15 +97,6 @@ describe("Posts Tests", () => {
     expect(response.body.length).toBe(2);
   });
 
-  test("Test Delete Post", async () => {
-    const response = await request(app)
-      .delete("/posts/" + postId)
-      .set({ authorization: "bearer " + testUser.token });
-    expect(response.statusCode).toBe(200);
-    const response2 = await request(app).get("/posts/" + postId);
-    expect(response2.statusCode).toBe(404);
-  });
-
   test("Test Create Post fail", async () => {
     const response = await request(app)
       .post("/posts")
@@ -114,5 +105,50 @@ describe("Posts Tests", () => {
         content: "Test Content 2",
       });
     expect(response.statusCode).toBe(400);
+  });
+
+  test("Test hasLiked for post", async () => {
+    const response = await request(app)
+      .get(`/posts/${postId}/hasLiked/${testUser._id}`)
+      .set({ authorization: "bearer " + testUser.token });
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toEqual({ hasLiked: false });
+  });
+
+  test("Test toggleLike for post", async () => {
+    const likeResponse = await request(app)
+      .post(`/posts/${postId}/toggleLike/${testUser._id}`)
+      .set({ authorization: "bearer " + testUser.token });
+    expect(likeResponse.statusCode).toBe(200);
+    expect(likeResponse.body.message).toBe("Post liked");
+
+    const hasLikedResponse = await request(app)
+      .get(`/posts/${postId}/hasLiked/${testUser._id}`)
+      .set({ authorization: "bearer " + testUser.token });
+
+    expect(hasLikedResponse.statusCode).toBe(200);
+    expect(hasLikedResponse.body).toEqual({ hasLiked: true });
+
+    const unlikeResponse = await request(app)
+      .post(`/posts/${postId}/toggleLike/${testUser._id}`)
+      .set({ authorization: "bearer " + testUser.token });
+    expect(unlikeResponse.statusCode).toBe(200);
+    expect(unlikeResponse.body.message).toBe("Post unliked");
+
+    const hasLikedAgainResponse = await request(app)
+      .get(`/posts/${postId}/hasLiked/${testUser._id}`)
+      .set({ authorization: "bearer " + testUser.token });
+
+    expect(hasLikedAgainResponse.statusCode).toBe(200);
+    expect(hasLikedAgainResponse.body).toEqual({ hasLiked: false });
+  });
+
+  test("Test Delete Post", async () => {
+    const response = await request(app)
+      .delete("/posts/" + postId)
+      .set({ authorization: "bearer " + testUser.token });
+    expect(response.statusCode).toBe(200);
+    const response2 = await request(app).get("/posts/" + postId);
+    expect(response2.statusCode).toBe(404);
   });
 });
