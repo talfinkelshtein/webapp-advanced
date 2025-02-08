@@ -26,7 +26,6 @@ const userSchema = new mongoose.Schema<IUser>({
   },
   profilePicture: {
     type: String,
-    default: "/uploads/avatar.png",
   },
   refreshToken: {
     type: [String],

@@ -12,6 +12,7 @@ type User = IUser & { token?: string };
 const testUser: User = {
   email: "test@user.com",
   password: "testpassword",
+  username: "testUser",
 };
 
 beforeAll(async () => {
@@ -19,9 +20,17 @@ beforeAll(async () => {
   app = await initApp();
   await commentsModel.deleteMany();
   await userModel.deleteMany();
+
+  // Register and log in the test user
   await request(app).post("/auth/register").send(testUser);
-  const res = await request(app).post("/auth/login").send(testUser);
+  const res = await request(app).post("/auth/login").send({
+    email: testUser.email,
+    password: testUser.password,
+  });
+
   testUser.token = res.body.accessToken;
+  testUser._id = res.body._id;
+
   expect(testUser.token).toBeDefined();
 });
 
@@ -43,83 +52,82 @@ describe("Comments Tests", () => {
   test("Test Create Comment", async () => {
     const response = await request(app)
       .post("/comments")
-      .set({ authorization: "bearer " + testUser.token })
+      .set({ authorization: `Bearer ${testUser.token}` })
       .send({
         content: testComments[0].content,
         postId: testComments[0].postId,
-        owner: testUser.email,
+        owner: testUser._id,
       });
+
     expect(response.statusCode).toBe(201);
     expect(response.body.content).toBe(testComments[0].content);
     expect(response.body.postId).toBe(testComments[0].postId);
-    expect(response.body.owner).toBe(testUser.email);
+    expect(response.body.owner).toBe(testUser._id);
+
     commentId = response.body._id;
   });
 
   test("Test get comment by owner", async () => {
-    const response = await request(app).get(
-      "/comments?owner=" + testComments[0].owner
-    );
+    const response = await request(app).get(`/comments?owner=${testUser._id}`);
     expect(response.statusCode).toBe(200);
     expect(response.body.length).toBe(1);
     expect(response.body[0].content).toBe(testComments[0].content);
     expect(response.body[0].postId).toBe(testComments[0].postId);
-    expect(response.body[0].owner).toBe(testComments[0].owner);
+    expect(response.body[0].owner).toBe(testUser._id);
   });
 
   test("Comments get by id", async () => {
-    const response = await request(app).get("/comments/" + commentId);
+    const response = await request(app).get(`/comments/${commentId}`);
     expect(response.statusCode).toBe(200);
     expect(response.body.content).toBe(testComments[0].content);
     expect(response.body.postId).toBe(testComments[0].postId);
-    expect(response.body.owner).toBe(testComments[0].owner);
+    expect(response.body.owner).toBe(testUser._id);
   });
 
   test("Comments get by post id", async () => {
-    const response = await request(app).get(
-      "/comments/byPost/" + testComments[0].postId
-    );
+    const response = await request(app).get(`/comments/byPost/${testComments[0].postId}`);
     expect(response.statusCode).toBe(200);
     expect(response.body[0].content).toBe(testComments[0].content);
     expect(response.body[0].postId).toBe(testComments[0].postId);
-    expect(response.body[0].owner).toBe(testComments[0].owner);
+    expect(response.body[0].owner).toBe(testUser._id);
   });
 
   test("Comments get by post id (post doesn't exist)", async () => {
-    const response = await request(app).get(
-      "/comments/byPost/" + "NONEXISTENT"
-    );
+    const response = await request(app).get("/comments/byPost/NONEXISTENT");
     expect(response.statusCode).toBe(200);
     expect(response.body.length).toBe(0);
   });
 
   test("Test Delete Comment", async () => {
     const response = await request(app)
-      .delete("/comments/" + commentId)
-      .set({ authorization: "bearer " + testUser.token });
+      .delete(`/comments/${commentId}`)
+      .set({ authorization: `Bearer ${testUser.token}` });
+
     expect(response.statusCode).toBe(200);
 
-    const response2 = await request(app).get("/comments/" + commentId);
+    const response2 = await request(app).get(`/comments/${commentId}`);
     expect(response2.statusCode).toBe(404);
   });
 
-  test("Test Create Comment", async () => {
+  test("Test Create Comment (Different Owner)", async () => {
     const response = await request(app)
       .post("/comments")
-      .set({ authorization: "bearer " + testUser.token })
+      .set({ authorization: `Bearer ${testUser.token}` })
       .send({
         postId: testComments[0].postId,
         content: "Hello",
-        owner: "Lior",
+        owner: "DifferentUser",
       });
+
     expect(response.statusCode).toBe(201);
   });
 
   test("Test Create Comment (Fail - Missing Fields)", async () => {
     const response = await request(app)
       .post("/comments")
-      .set({ authorization: "bearer " + testUser.token })
-      .send({ postId: testComments[0].postId }); // Missing 'Comment' and 'Owner' field
+      .set({ authorization: `Bearer ${testUser.token}` })
+      .send({ postId: testComments[0].postId }); // Missing 'content' and 'owner' field
+
     expect(response.statusCode).toBe(400);
   });
 });

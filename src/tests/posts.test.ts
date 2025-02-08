@@ -12,6 +12,7 @@ type User = IUser & { token?: string };
 const testUser: User = {
   email: "test@user.com",
   password: "testpassword",
+  username: "testuser",
 };
 
 beforeAll(async () => {
