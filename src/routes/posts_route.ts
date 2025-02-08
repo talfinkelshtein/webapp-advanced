@@ -5,11 +5,11 @@ import { uploadMiddleware } from "../middlewares/uploadMiddleware";
 const router = express.Router();
 
 /**
-* @swagger
-* tags:
-*   name: Posts
-*   description: The Posts API
-*/
+ * @swagger
+ * tags:
+ *   name: Posts
+ *   description: The Posts API
+ */
 /**
  * @swagger
  * components:
@@ -127,7 +127,12 @@ router.get("/:id", postsController.getById.bind(postsController));
  *       500:
  *         description: Server error
  */
-router.post("/", authMiddleware, uploadMiddleware,  postsController.create.bind(postsController));
+router.post(
+  "/",
+  authMiddleware,
+  uploadMiddleware,
+  postsController.create.bind(postsController)
+);
 
 /**
  * @swagger

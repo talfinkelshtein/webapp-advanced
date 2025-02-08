@@ -1,26 +1,28 @@
-import dotenv from "dotenv"
-dotenv.config();
-import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import cors from "cors";
+import dotenv from "dotenv";
 import express, { Express } from "express";
-import postsRoute from "./routes/posts_route";
-import commentsRoute from "./routes/comments_routes";
-import authRoutes from "./routes/auth_routes";
+import mongoose from "mongoose";
+import path from "path";
 import swaggerJsDoc from "swagger-jsdoc";
 import swaggerUI from "swagger-ui-express";
-import path from "path";
 import usersRoutes from "./routes/usersRoutes";
+import aiRoutes from "./routes/ai_routes";
+import authRoutes from "./routes/auth_routes";
+import commentsRoute from "./routes/comments_routes";
+import postsRoute from "./routes/posts_route";
+dotenv.config();
 
 const app = express();
-app.use(cors())
+app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use("/uploads", express.static(path.join(__dirname, "../uploads"))); 
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use("/posts", postsRoute);
 app.use("/comments", commentsRoute);
 app.use("/auth", authRoutes);
 app.use("/users", usersRoutes);
+app.use("/ai", aiRoutes);
 app.use(express.urlencoded({ extended: true }));
 
 const options = {
@@ -31,7 +33,7 @@ const options = {
       version: "1.0.0",
       description: "REST server including authentication using JWT",
     },
-    servers: [{ url: "http://localhost:3000", },],
+    servers: [{ url: "http://localhost:3000" }],
   },
   apis: ["./src/routes/*.ts"],
 };

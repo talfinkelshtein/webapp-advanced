@@ -23,8 +23,7 @@ export const authMiddleware = (
 
   jwt.verify(token, process.env.TOKEN_SECRET, (err, payload) => {
     if (err) {
-      res.status(StatusCodes.UNAUTHORIZED).send("Access Denied");
-      return;
+      return res.status(StatusCodes.UNAUTHORIZED).send("Access Denied");
     }
     req.params.userId = (payload as Payload)._id;
     next();
