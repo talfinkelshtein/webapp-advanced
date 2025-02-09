@@ -1,5 +1,6 @@
 import express from "express";
 import authController from "../controllers/auth_controller";
+import { uploadMiddleware } from "../middlewares/uploadMiddleware";
 
 const router = express.Router();
 
@@ -58,7 +59,7 @@ const router = express.Router();
  *             schema:
  *               $ref: '#/components/schemas/User'
  */
-router.post("/register", authController.register);
+router.post("/register", uploadMiddleware, authController.register);
 
 /**
  * @swagger

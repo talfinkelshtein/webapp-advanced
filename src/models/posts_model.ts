@@ -1,27 +1,23 @@
-import mongoose from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 
-export interface IPost {
-  id?: string;
+export interface IPost extends Document {
   content: string;
-  owner: string;
-  likedBy: string[];
+  owner: mongoose.Types.ObjectId; 
+  likedBy: mongoose.Types.ObjectId[]; 
   imagePath: string;
   plantType: string;
+  createdAt: Date;
 }
 
-const postSchema = new mongoose.Schema<IPost>({
-  content: String,
-  owner: {
-    type: String,
-    required: true,
+const postSchema = new Schema<IPost>(
+  {
+    content: { type: String, required: true },
+    owner: { type: mongoose.Schema.Types.ObjectId, ref: "Users", required: true },    likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "Users", default: [] }], 
+    imagePath: { type: String, required: true },
+    plantType: { type: String },
   },
-  likedBy: {
-    type: [String],
-    default: [],
-  },
-  imagePath: String,
-  plantType: String,
-});
+  { timestamps: true } 
+);
 
 postSchema.set("toJSON", {
   virtuals: true,
@@ -33,5 +29,4 @@ postSchema.set("toJSON", {
 });
 
 const postModel = mongoose.model<IPost>("Posts", postSchema);
-
 export default postModel;

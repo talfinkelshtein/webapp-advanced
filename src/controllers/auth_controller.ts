@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import { OAuth2Client } from "google-auth-library";
 import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
-import userModel from "../models/users_model";
+import userModel, { IUser } from "../models/users_model";
 import { jwtToken, User } from "../types/auth.types";
 
 const client = new OAuth2Client();
@@ -13,10 +13,17 @@ const register = async (req: Request, res: Response) => {
     const password = req.body.password;
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    const user = await userModel.create({
+
+    const updateData: Partial<IUser> = {
       email: req.body.email,
       password: hashedPassword,
-    });
+    };
+
+    if (req.file) {
+      updateData.profilePicture = `/uploads/${req.file.filename}`;
+    }
+
+    const user = await userModel.create(updateData);
     res.status(StatusCodes.OK).send(user);
   } catch (err) {
     res.status(StatusCodes.BAD_REQUEST).send(err);
@@ -38,13 +45,19 @@ const googleSignin = async (req: Request, res: Response) => {
         if (!user) {
           user = await userModel.create({
             email: email,
-            password: "",
+            username: email.split("@")[0],
+            password: " ",
           });
         }
         const tokens = generateToken(user._id);
-        res.status(200).send(tokens);
+
+        const userPayload = {
+          ...tokens,
+          _id: user._id,
+        };
+
+        res.status(200).send(userPayload);
       }
-      console.log(payload);
     } catch (err) {
       res.sendStatus(400).send("Missing email or password");
     }
