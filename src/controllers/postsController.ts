@@ -58,14 +58,24 @@ class PostsController extends BaseController<IPost> {
 
   async getAll(req: Request, res: Response): Promise<void> {
     try {
-      const filter = req.query.owner ? { owner: req.query.owner } : {};
-      const posts = await this.model.find(filter).populate("owner", "username profilePicture");
+        const page = Number(req.query.page) || 1;
+        const limit = Number(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
 
-      res.status(StatusCodes.OK).json(posts);
+        const filter = req.query.owner ? { owner: req.query.owner } : {};
+        const posts = await this.model
+            .find(filter)
+            .sort({ createdAt: -1 }) 
+            .skip(skip)
+            .limit(limit)
+            .populate("owner", "username profilePicture");
+
+        res.status(StatusCodes.OK).json(posts);
     } catch (error) {
-      res.status(StatusCodes.BAD_REQUEST).json({ error });
+        console.error("Error fetching posts:", error);
+        res.status(StatusCodes.BAD_REQUEST).json({ error });
     }
-  }
+}
 
   async getById(req: Request, res: Response): Promise<void> {
     try {
