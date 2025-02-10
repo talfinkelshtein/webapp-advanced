@@ -1,6 +1,6 @@
 import express from "express";
 import { authMiddleware } from "../middlewares/authMiddleware";
-import { generateFlowerDescription } from "../utilities/ai_generator";
+import { generateFlowerDescription } from "../controllers/ai_controller";
 
 const router = express.Router();
 
