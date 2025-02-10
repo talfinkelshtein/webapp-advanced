@@ -1,7 +1,7 @@
 import axios from "axios";
 import express from "express";
 import request from "supertest";
-import { generateFlowerDescription } from "../utilities/ai_generator";
+import { generateFlowerDescription } from "../controllers/ai_controller";
 jest.mock("axios"); // Mock axios
 
 const app = express();
