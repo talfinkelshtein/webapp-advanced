@@ -5,6 +5,7 @@ import postModel, { IPost } from "../models/posts_model";
 import { EditAndDeletePayload } from "../types/auth.types";
 import { deleteImageFromServer } from "../utils/uploadUtils";
 import BaseController from "./base_controller";
+import commentsModel from "../models/comments_model";
 
 class PostsController extends BaseController<IPost> {
   constructor() {
@@ -75,23 +76,55 @@ class PostsController extends BaseController<IPost> {
 
   async getAll(req: Request, res: Response): Promise<void> {
     try {
-      const page = Number(req.query.page) || 1;
-      const limit = Number(req.query.limit) || 10;
-      const skip = (page - 1) * limit;
+      const { limit, skip } = this.getPaginationParams(req);
+      const filter = this.getFilter(req);
+      const posts = await this.fetchPosts(filter, skip, limit);
+      const commentsMap = await this.fetchCommentsMap(posts);
+      const postsWithComments = this.attachCommentsCount(posts, commentsMap);
 
-      const filter = req.query.owner ? { owner: req.query.owner } : {};
-      const posts = await this.model
-        .find(filter)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .populate("owner", "username profilePicture");
+      res.status(StatusCodes.OK).json(postsWithComments);
 
-      res.status(StatusCodes.OK).json(posts);
     } catch (error) {
       console.error("Error fetching posts:", error);
       res.status(StatusCodes.BAD_REQUEST).json({ error });
     }
+  }
+
+  private getPaginationParams(req: Request) {
+    return {
+      limit: Number(req.query.limit) || 10,
+      skip: ((Number(req.query.page) || 1) - 1) * (Number(req.query.limit) || 10),
+    };
+  }
+
+  private getFilter(req: Request) {
+    return req.query.owner ? { owner: req.query.owner } : {};
+  }
+
+  private async fetchPosts(filter: Record<string, any>, skip: number, limit: number) {
+    return this.model
+      .find(filter)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate("owner", "username profilePicture");
+  }
+
+  private async fetchCommentsMap(posts: any[]) {
+    const postIds = posts.map(post => post._id);
+    const commentsCounts = await commentsModel.aggregate([
+      { $match: { postId: { $in: postIds } } },
+      { $group: { _id: "$postId", count: { $sum: 1 } } }
+    ]);
+
+    return Object.fromEntries(commentsCounts.map(({ _id, count }) => [_id.toString(), count]));
+  }
+
+  private attachCommentsCount(posts: any[], commentsMap: Record<string, number>) {
+    return posts.map(post => ({
+      ...post.toJSON(), 
+      commentsCount: commentsMap[post.id] || 0,
+    }));
   }
 
   async getById(req: Request, res: Response): Promise<void> {
