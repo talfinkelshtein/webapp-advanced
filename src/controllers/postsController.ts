@@ -5,6 +5,7 @@ import postModel, { IPost } from "../models/posts_model";
 import { EditAndDeletePayload } from "../types/auth.types";
 import { deleteImageFromServer } from "../utils/uploadUtils";
 import BaseController from "./base_controller";
+import commentsModel from "../models/comments_model";
 
 class PostsController extends BaseController<IPost> {
   constructor() {
@@ -75,24 +76,47 @@ class PostsController extends BaseController<IPost> {
 
   async getAll(req: Request, res: Response): Promise<void> {
     try {
-      const page = Number(req.query.page) || 1;
-      const limit = Number(req.query.limit) || 10;
-      const skip = (page - 1) * limit;
+        const page = Number(req.query.page) || 1;
+        const limit = Number(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
 
-      const filter = req.query.owner ? { owner: req.query.owner } : {};
-      const posts = await this.model
-        .find(filter)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .populate("owner", "username profilePicture");
+        const filter = req.query.owner ? { owner: req.query.owner } : {};
 
-      res.status(StatusCodes.OK).json(posts);
+        const posts = await this.model
+            .find(filter)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .populate("owner", "username profilePicture");
+
+        const postIds = posts.map(post => post._id);
+        const commentsCounts = await commentsModel.aggregate([
+            { $match: { postId: { $in: postIds } } },
+            { $group: { _id: "$postId", count: { $sum: 1 } } }
+        ]);
+
+        const commentsMap = commentsCounts.reduce((acc, { _id, count }) => {
+            acc[_id.toString()] = count;
+            return acc;
+        }, {} as Record<string, number>);
+
+        const postsWithCommentsCount = posts.map(post => {
+            const postObject = post.toObject() as { _id: mongoose.Types.ObjectId }; 
+
+            return {
+                ...postObject,
+                id: postObject._id.toString(), 
+                commentsCount: commentsMap[postObject._id.toString()] || 0, 
+            };
+        });
+
+        res.status(StatusCodes.OK).json(postsWithCommentsCount);
     } catch (error) {
-      console.error("Error fetching posts:", error);
-      res.status(StatusCodes.BAD_REQUEST).json({ error });
+        console.error("Error fetching posts:", error);
+        res.status(StatusCodes.BAD_REQUEST).json({ error });
     }
-  }
+}
+
 
   async getById(req: Request, res: Response): Promise<void> {
     try {
