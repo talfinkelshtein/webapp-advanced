@@ -13,3 +13,5 @@ export type User = Document<unknown, {}, IUser> &
   }> & {
     __v: number;
   };
+
+export type EditAndDeletePayload<T> = Partial<T> & { userId: string }

@@ -5,6 +5,7 @@ import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
 import userModel, { IUser } from "../models/users_model";
 import { jwtToken, User } from "../types/auth.types";
+import { MongooseError } from "mongoose";
 
 const client = new OAuth2Client();
 
@@ -24,9 +25,13 @@ const register = async (req: Request, res: Response) => {
     }
 
     const user = await userModel.create(updateData);
-    res.status(StatusCodes.OK).send(user);
-  } catch (err) {
-    res.status(StatusCodes.BAD_REQUEST).send(err);
+    res.status(StatusCodes.CREATED).send(user);
+  } catch (err: any) {
+    if (err.name === 'MongoServerError' && err.code === 11000) {
+      res.status(StatusCodes.CONFLICT).send(err);
+    } else {
+      res.status(StatusCodes.BAD_REQUEST).send(err);
+    }
   }
 };
 
