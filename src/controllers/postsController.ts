@@ -1,9 +1,11 @@
 import { Request, Response } from "express";
+import fs from "fs";
 import { StatusCodes } from "http-status-codes";
+import mongoose from "mongoose";
+import path from "path";
 import postModel, { IPost } from "../models/posts_model";
 import userModel from "../models/users_model"; 
 import BaseController from "./base_controller";
-import mongoose from "mongoose";
 
 class PostsController extends BaseController<IPost> {
   constructor() {
@@ -135,7 +137,45 @@ class PostsController extends BaseController<IPost> {
       });
     } catch (error) {
       console.error("Error toggling like:", error);
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: "Failed to toggle like" });
+      res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ error: "Failed to toggle like" });
+    }
+  }
+
+  async deleteItem(req: Request, res: Response): Promise<void> {
+    try {
+      const { userId } = req.body;
+
+      const post = await this.model.findById(req.params.id);
+
+      if (!post) {
+        res.status(StatusCodes.NOT_FOUND).json({ error: "Item not found" });
+        return;
+      }
+
+      if (post.owner.toString() !== userId) {
+        res.status(StatusCodes.UNAUTHORIZED).json({ error: "Unauthorized" });
+        return;
+      }
+
+      if (post.imagePath) {
+        const imagePath = path.join(__dirname, "../../", post.imagePath);
+        fs.unlink(imagePath, (err) => {
+          if (err) {
+            console.error("Failed to delete image file:", err);
+          }
+        });
+      }
+
+      const result = await this.model.findByIdAndDelete(req.params.id);
+
+      res.status(StatusCodes.OK).json(result);
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ error: "Failed to delete item" });
     }
   }
 }
