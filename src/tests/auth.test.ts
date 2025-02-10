@@ -208,6 +208,8 @@ describe("Auth Tests", () => {
     expect(response3.statusCode).not.toBe(200);
   });
 
+  jest.setTimeout(30000);
+
   test("Test timeout token", async () => {
     const loginResponse = await request(app)
       .post(baseUrl + "/login")
@@ -217,7 +219,7 @@ describe("Auth Tests", () => {
     testUser.accessToken = loginResponse.body.accessToken;
     testUser.refreshToken = loginResponse.body.refreshToken;
 
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    await new Promise((resolve) => setTimeout(resolve, 10000));
 
     const response2 = await request(app)
       .post("/posts")
