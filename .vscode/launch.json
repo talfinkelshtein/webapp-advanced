@@ -46,7 +46,7 @@
         "--runInBand",
         "--no-cache",
         "--detectOpenHandles",
-        "src/tests/comments.test.ts" // Change this to the test file you want to debug
+        "src/tests/posts.test.ts" // Change this to the test file you want to debug
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",

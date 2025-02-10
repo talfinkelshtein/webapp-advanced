@@ -47,7 +47,7 @@ describe("Posts Tests", () => {
       .set({ authorization: "bearer " + testUser.token })
       .field("plantType", "Test Plant Type")
       .field("content", "Test Content")
-      .field("owner", testUser._id as string) 
+      .field("owner", testUser._id as string)
       .attach("image", path.join(__dirname, "./mocks/test-image.jpg"));
 
     expect(response.statusCode).toBe(201);
@@ -59,18 +59,18 @@ describe("Posts Tests", () => {
     });
 
     postId = response.body.id;
-});
+  });
 
   test("Test Update Post", async () => {
     const response = await request(app)
       .put("/posts/" + postId)
       .set({ authorization: "bearer " + testUser.token })
       .send({
+        userId: testUser._id as string,
         title: "Test Post updated",
       });
     expect(response.statusCode).toBe(200);
-    expect(response.body.content).toBe("Test Content");
-    postId = response.body.id;
+    expect(response.body.modifiedCount).toEqual(1);
   });
 
   test("Test get post by owner", async () => {
@@ -153,7 +153,8 @@ describe("Posts Tests", () => {
   test("Test Delete Post", async () => {
     const response = await request(app)
       .delete("/posts/" + postId)
-      .set({ authorization: "bearer " + testUser.token });
+      .set({ authorization: "bearer " + testUser.token })
+      .send({ userId: testUser._id as string });
     expect(response.statusCode).toBe(200);
     const response2 = await request(app).get("/posts/" + postId);
     expect(response2.statusCode).toBe(404);

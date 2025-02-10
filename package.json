@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon ./src/app.ts",
     "start": "tsc && node ./dist/app.js",
-    "test": "jest --detectOpenHandles --forceExit --coverage",
+    "test": "jest --detectOpenHandles --forceExit --coverage --config=jest.config.js",
     "lint": "eslint . --ext .ts"
   },
   "author": "",

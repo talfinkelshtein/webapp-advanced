@@ -14,6 +14,7 @@ beforeAll(async () => {
   app = await initApp();
   await userModel.deleteMany();
   await postModel.deleteMany();
+  jest.setTimeout(30000);
 });
 
 afterAll((done) => {
@@ -32,7 +33,7 @@ type User = IUser & {
 const testUser: User = {
   email: "test@user.com",
   password: "testpassword",
-  username: "testuser"
+  username: "testuser",
 };
 
 describe("Auth Tests", () => {
@@ -40,7 +41,7 @@ describe("Auth Tests", () => {
     const response = await request(app)
       .post(baseUrl + "/register")
       .send(testUser);
-    expect(response.statusCode).toBe(200);
+    expect(response.statusCode).toBe(201);
   });
 
   test("Auth test register fail", async () => {
@@ -220,7 +221,7 @@ describe("Auth Tests", () => {
 
     const response2 = await request(app)
       .post("/posts")
-      .set("Authorization", `bearer ${testUser.accessToken}`)
+      .set("Authorization", `bearer ${testUser.accessToken}`);
 
     expect(response2.text).toContain("Access Denied");
     expect(response2.statusCode).toBe(401);

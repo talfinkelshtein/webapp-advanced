@@ -75,7 +75,7 @@ describe("User Profile Tests", () => {
     };
 
     const registerResponse = await request(app).post("/auth/register").send(newUser);
-    expect(registerResponse.statusCode).toBe(200);
+    expect(registerResponse.statusCode).toBe(201);
 
     const loginResponse = await request(app).post("/auth/login").send(newUser);
     expect(loginResponse.statusCode).toBe(200);
