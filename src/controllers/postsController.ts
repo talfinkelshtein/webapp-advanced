@@ -1,10 +1,9 @@
 import { Request, Response } from "express";
-import fs from "fs";
 import { StatusCodes } from "http-status-codes";
 import mongoose from "mongoose";
-import path from "path";
 import postModel, { IPost } from "../models/posts_model";
 import { EditAndDeletePayload } from "../types/auth.types";
+import { deleteImageFromServer } from "../utils/uploadUtils";
 import BaseController from "./base_controller";
 
 class PostsController extends BaseController<IPost> {
@@ -63,6 +62,8 @@ class PostsController extends BaseController<IPost> {
 
       res.status(StatusCodes.OK).json(updatedPost);
     } catch (error) {
+      if (req.file) deleteImageFromServer(req.file.filename);
+      
       console.error("Update Post Error:", error);
       res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
@@ -183,14 +184,7 @@ class PostsController extends BaseController<IPost> {
         return;
       }
 
-      if (post.imagePath) {
-        const imagePath = path.join(__dirname, "../../", post.imagePath);
-        fs.unlink(imagePath, (err) => {
-          if (err) {
-            console.error("Failed to delete image file:", err);
-          }
-        });
-      }
+      if (post.imagePath) deleteImageFromServer(post.imagePath);
 
       const result = await this.model.findByIdAndDelete(req.params.id);
 
