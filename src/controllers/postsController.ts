@@ -45,11 +45,13 @@ class PostsController extends BaseController<IPost> {
       const post = await this.model.findById(req.params.id);
 
       if (!post) {
+        if (req.file) deleteImageFromServer(`/uploads/${req.file.filename}`);
         res.status(StatusCodes.NOT_FOUND).json({ error: "Post not found" });
         return;
       }
 
       if (post.owner.toString() !== updateData.userId) {
+        if (req.file) deleteImageFromServer(`/uploads/${req.file.filename}`);
         res.status(StatusCodes.UNAUTHORIZED).json({ error: "Unauthorized" });
         return;
       }
@@ -63,7 +65,7 @@ class PostsController extends BaseController<IPost> {
       res.status(StatusCodes.OK).json(updatedPost);
     } catch (error) {
       if (req.file) deleteImageFromServer(req.file.filename);
-      
+
       console.error("Update Post Error:", error);
       res
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
