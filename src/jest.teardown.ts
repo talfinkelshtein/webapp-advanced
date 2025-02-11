@@ -8,7 +8,5 @@ export default async () => {
   const envPath = path.resolve(__dirname, "../.env.test");
   dotenv.config({ path: envPath, override: true });
 
-  await initApp();
   await deleteAllImages();
-  await mongoose.connection.close();
 };
