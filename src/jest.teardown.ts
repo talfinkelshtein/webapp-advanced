@@ -1,8 +1,6 @@
-import mongoose from "mongoose";
-import initApp from "./server";
-import { deleteAllImages } from "./utils/uploadUtils";
 import dotenv from "dotenv";
 import path from "path";
+import { deleteAllImages } from "./utils/uploadUtils";
 
 export default async () => {
   const envPath = path.resolve(__dirname, "../.env.test");
