@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import postModel from "../models/posts_model";
 
 export const deleteImageFromServer = async (
   imagePath: string
@@ -13,14 +12,8 @@ export const deleteImageFromServer = async (
   });
 };
 
-export const deleteImages = async () => {
-  try {
-    const posts = await postModel.find({ content: "Test Content" });
-
-    posts.forEach((post) => {
-      if (post.imagePath) deleteImageFromServer(post.imagePath);
-    });
-  } catch (error) {
-    console.error("Error deleting images:", error);
-  }
+export const deleteAllImages = async (): Promise<void> => {
+  const dirPath = path.join(__dirname, `../../${process.env.UPLOADS_DIR}`);
+  
+  fs.rmSync(dirPath, { recursive: true, force: true });
 };

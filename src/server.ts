@@ -11,7 +11,23 @@ import aiRoutes from "./routes/ai_routes";
 import authRoutes from "./routes/auth_routes";
 import commentsRoute from "./routes/comments_routes";
 import postsRoute from "./routes/posts_route";
-dotenv.config();
+
+let envFile;
+switch (process.env.NODE_ENV) {
+  case "production":
+    envFile = ".env.production";
+    break;
+  case "test":
+    envFile = ".env.test";
+    break;
+  default:
+    envFile = ".env";
+}
+
+dotenv.config({ path: path.resolve(__dirname, `../${envFile}`) });
+
+console.log("Environment File Loaded:", envFile);
+console.log("Current NODE_ENV:", process.env.NODE_ENV);
 
 const app = express();
 app.use(cors());
