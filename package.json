@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon ./src/app.ts",
+    "dev": "tsc && cross-env NODE_ENV=development node ./dist/app.js",
+    "prod": "tsc && cross-env NODE_ENV=production node ./dist/app.js",
     "start": "tsc && node ./dist/app.js",
     "test": "cross-env NODE_ENV=test jest --detectOpenHandles --forceExit --coverage --config=jest.config.js",
     "lint": "eslint . --ext .ts"
