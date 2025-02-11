@@ -83,8 +83,8 @@ export const generateToken = (userId: string): jwtToken | null => {
       _id: userId,
       random: randomNum,
     },
-    process.env.TOKEN_SECRET,
-    { expiresIn: process.env.TOKEN_EXPIRES }
+    process.env.TOKEN_SECRET as string,
+    { expiresIn: process.env.TOKEN_EXPIRES as string } as jwt.SignOptions
   );
 
   const refreshToken = jwt.sign(
@@ -92,8 +92,8 @@ export const generateToken = (userId: string): jwtToken | null => {
       _id: userId,
       random: randomNum,
     },
-    process.env.TOKEN_SECRET,
-    { expiresIn: process.env.REFRESH_TOKEN_EXPIRES }
+    process.env.TOKEN_SECRET as string,
+    { expiresIn: process.env.REFRESH_TOKEN_EXPIRES as string } as jwt.SignOptions
   );
 
   return {
