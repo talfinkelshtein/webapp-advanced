@@ -9,16 +9,20 @@ import initApp from "../server";
 
 var app: Express;
 
+const cleanDb = async () => {
+  await userModel.deleteMany();
+  await postModel.deleteMany();
+}
+
 beforeAll(async () => {
   console.log("beforeAll");
   app = await initApp();
-  await userModel.deleteMany();
-  await postModel.deleteMany();
-  jest.setTimeout(30000);
+  await cleanDb();
 });
 
 afterAll((done) => {
   console.log("afterAll");
+  cleanDb();
   mongoose.connection.close();
   done();
 });

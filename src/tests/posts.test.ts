@@ -8,6 +8,11 @@ import initApp from "../server";
 
 var app: Express;
 
+const cleanDb = async () => {
+  await userModel.deleteMany();
+  await postModel.deleteMany();
+}
+
 type User = IUser & { token?: string };
 const testUser: User = {
   email: "test@user.com",
@@ -18,8 +23,7 @@ const testUser: User = {
 beforeAll(async () => {
   console.log("beforeAll");
   app = await initApp();
-  await postModel.deleteMany();
-  await userModel.deleteMany();
+  await cleanDb();
   await request(app).post("/auth/register").send(testUser);
   const res = await request(app).post("/auth/login").send(testUser);
   testUser._id = res.body._id;
@@ -29,6 +33,7 @@ beforeAll(async () => {
 
 afterAll((done) => {
   console.log("afterAll");
+  cleanDb();
   mongoose.connection.close();
   done();
 });

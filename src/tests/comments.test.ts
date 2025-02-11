@@ -1,12 +1,12 @@
 import { Express } from "express";
 import mongoose from "mongoose";
+import path from "path";
 import request from "supertest";
 import commentsModel from "../models/comments_model";
-import path from "path";
+import postModel from "../models/posts_model";
 import userModel, { IUser } from "../models/users_model";
 import initApp from "../server";
-import testComments from "./test_comments.json";
-import postModel from "../models/posts_model";
+import testComments from "./mocks/test_comments.json";
 
 var app: Express;
 
@@ -17,15 +17,19 @@ const testUser: User = {
   username: "test",
 };
 
+const cleanDb = async () => {
+  await commentsModel.deleteMany();
+  await userModel.deleteMany();
+  await postModel.deleteMany();
+};
+
 let postId = "";
 let userId = "";
 
 beforeAll(async () => {
   console.log("beforeAll");
   app = await initApp();
-  await commentsModel.deleteMany();
-  await userModel.deleteMany();
-  await postModel.deleteMany(); 
+  await cleanDb();
 
   await request(app).post("/auth/register").send(testUser);
   const res = await request(app).post("/auth/login").send({
@@ -50,7 +54,7 @@ beforeAll(async () => {
   expect(postResponse.statusCode).toBe(201);
   postId = postResponse.body.id;
 
-  testComments.forEach(comment => {
+  testComments.forEach((comment) => {
     comment.postId = postId;
     comment.owner = userId;
   });
@@ -58,6 +62,7 @@ beforeAll(async () => {
 
 afterAll((done) => {
   console.log("afterAll");
+  cleanDb();
   mongoose.connection.close();
   done();
 });
@@ -76,9 +81,9 @@ describe("Comments Tests", () => {
       .post("/comments")
       .set({ authorization: `Bearer ${testUser.token}` })
       .send({
-        content: testComments[0].content,  
-        postId: testComments[0].postId, 
-        owner: testComments[0].owner,  
+        content: testComments[0].content,
+        postId: testComments[0].postId,
+        owner: testComments[0].owner,
       });
 
     expect(response.statusCode).toBe(201);
@@ -89,12 +94,12 @@ describe("Comments Tests", () => {
       username: testUser.username,
     });
 
-    commentId = response.body.id;  
-});
+    commentId = response.body.id;
+  });
 
   test("Test get comment by owner", async () => {
     const response = await request(app).get(`/comments?owner=${testUser._id}`);
-    
+
     expect(response.statusCode).toBe(200);
     expect(response.body.length).toBe(1);
     expect(response.body[0].content).toBe(testComments[0].content);
@@ -135,7 +140,7 @@ describe("Comments Tests", () => {
 
     const response2 = await request(app).get(`/comments/${commentId}`);
     expect(response2.statusCode).toBe(404);
-});
+  });
 
   test("Test Create Comment (Fail - Missing Fields)", async () => {
     const response = await request(app)

@@ -14,12 +14,16 @@ const testUser: User = {
   username: "test",
 };
 
+const cleanDb = async () => {
+  await userModel.deleteMany();
+}
+
 let userId: string;
 
 beforeAll(async () => {
   console.log("beforeAll");
   app = await initApp();
-  await userModel.deleteMany();
+  await cleanDb();
 
   await request(app).post("/auth/register").send(testUser);
 
@@ -33,6 +37,7 @@ beforeAll(async () => {
 
 afterAll((done) => {
   console.log("afterAll");
+  cleanDb();
   mongoose.connection.close();
   done();
 });
