@@ -2,7 +2,7 @@ import axios from "axios";
 import express from "express";
 import request from "supertest";
 import { generateFlowerDescription } from "../controllers/ai_controller";
-jest.mock("axios"); // Mock axios
+jest.mock("axios"); 
 
 const app = express();
 app.use(express.json());
