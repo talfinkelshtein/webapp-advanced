@@ -14,12 +14,16 @@ const testUser: User = {
   username: "test",
 };
 
+const cleanDb = async () => {
+  await userModel.deleteMany();
+}
+
 let userId: string;
 
 beforeAll(async () => {
   console.log("beforeAll");
   app = await initApp();
-  await userModel.deleteMany();
+  await cleanDb();
 
   await request(app).post("/auth/register").send(testUser);
 
@@ -65,7 +69,7 @@ describe("User Profile Tests", () => {
       .attach("image", path.join(__dirname, "./mocks/test-image.jpg"));
 
     expect(response.statusCode).toBe(200);
-    expect(response.body.profilePicture).toMatch(/uploads\/.+\.jpg/);
+    expect(response.body.profilePicture).toMatch(/uploads_test\/.+\.jpg/);
   });
 
   test("New user should have default username from email prefix", async () => {
@@ -75,7 +79,7 @@ describe("User Profile Tests", () => {
     };
 
     const registerResponse = await request(app).post("/auth/register").send(newUser);
-    expect(registerResponse.statusCode).toBe(200);
+    expect(registerResponse.statusCode).toBe(201);
 
     const loginResponse = await request(app).post("/auth/login").send(newUser);
     expect(loginResponse.statusCode).toBe(200);

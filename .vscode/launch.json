@@ -46,7 +46,8 @@
         "--runInBand",
         "--no-cache",
         "--detectOpenHandles",
-        "src/tests/comments.test.ts" // Change this to the test file you want to debug
+        "--config=jest.config.js",
+        "src/tests/auth.test.ts" // Change this to the test file you want to debug
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",

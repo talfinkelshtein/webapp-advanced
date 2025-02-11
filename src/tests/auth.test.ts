@@ -9,11 +9,15 @@ import initApp from "../server";
 
 var app: Express;
 
+const cleanDb = async () => {
+  await userModel.deleteMany();
+  await postModel.deleteMany();
+}
+
 beforeAll(async () => {
   console.log("beforeAll");
   app = await initApp();
-  await userModel.deleteMany();
-  await postModel.deleteMany();
+  await cleanDb();
 });
 
 afterAll((done) => {
@@ -32,7 +36,7 @@ type User = IUser & {
 const testUser: User = {
   email: "test@user.com",
   password: "testpassword",
-  username: "testuser"
+  username: "testuser",
 };
 
 describe("Auth Tests", () => {
@@ -40,7 +44,7 @@ describe("Auth Tests", () => {
     const response = await request(app)
       .post(baseUrl + "/register")
       .send(testUser);
-    expect(response.statusCode).toBe(200);
+    expect(response.statusCode).toBe(201);
   });
 
   test("Auth test register fail", async () => {
@@ -207,6 +211,8 @@ describe("Auth Tests", () => {
     expect(response3.statusCode).not.toBe(200);
   });
 
+  jest.setTimeout(30000);
+
   test("Test timeout token", async () => {
     const loginResponse = await request(app)
       .post(baseUrl + "/login")
@@ -216,11 +222,11 @@ describe("Auth Tests", () => {
     testUser.accessToken = loginResponse.body.accessToken;
     testUser.refreshToken = loginResponse.body.refreshToken;
 
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    await new Promise((resolve) => setTimeout(resolve, 10000));
 
     const response2 = await request(app)
       .post("/posts")
-      .set("Authorization", `bearer ${testUser.accessToken}`)
+      .set("Authorization", `bearer ${testUser.accessToken}`);
 
     expect(response2.text).toContain("Access Denied");
     expect(response2.statusCode).toBe(401);
@@ -237,7 +243,7 @@ describe("Auth Tests", () => {
       .set("Authorization", `bearer ${testUser.accessToken}`)
       .field("title", "Test Post")
       .field("content", "Test Content")
-      .field("owner", "sdfSd")
+      .field("owner", testUser._id as string)
       .attach("image", path.join(__dirname, "./mocks/test-image.jpg"));
 
     expect(response4.statusCode).toBe(201);

@@ -32,8 +32,6 @@ export const getPlantsFromTrefle = async (req: Request, res: Response): Promise<
             image_url: flower.image_url || null,
         }));
 
-        console.log(formattedFlowers.length);
-
         res.status(StatusCodes.OK).json(formattedFlowers);
     } catch (error) {
         console.error("Error fetching flowers from Trefle:", error);

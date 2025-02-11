@@ -13,7 +13,7 @@ describe("generateFlowerDescription", () => {
     jest.clearAllMocks();
   });
 
-  test("should return description for valid plant type", async () => {
+  test("description for valid plant type", async () => {
     const mockDescription =
       "Roses are beautiful flowers with a wide variety of colors and fragrances.";
     (axios.post as jest.Mock).mockResolvedValue({
@@ -55,7 +55,7 @@ describe("generateFlowerDescription", () => {
     );
   });
 
-  test("should return 400 if plant type is missing", async () => {
+  test("plant type is missing", async () => {
     const response = await request(app).get("/flower-description");
 
     expect(response.status).toBe(400);
@@ -63,7 +63,7 @@ describe("generateFlowerDescription", () => {
     expect(axios.post).not.toHaveBeenCalled();
   });
 
-  test("should return 500 if OpenAI API request fails", async () => {
+  test("OpenAI API request fails", async () => {
     (axios.post as jest.Mock).mockRejectedValue({
       response: {
         data: "API error message",
@@ -79,7 +79,7 @@ describe("generateFlowerDescription", () => {
     expect(axios.post).toHaveBeenCalled();
   });
 
-  test("should handle unexpected errors gracefully", async () => {
+  test("handle unexpected errors", async () => {
     (axios.post as jest.Mock).mockRejectedValue(new Error("Unexpected error"));
 
     const response = await request(app)

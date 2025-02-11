@@ -1,10 +1,6 @@
-import express from "express";
 import axios from "axios";
-import dotenv from "dotenv";
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-
-dotenv.config();
 
 export const generateFlowerDescription = async (
   req: Request,
