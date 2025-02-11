@@ -14,6 +14,16 @@ export const deleteImageFromServer = async (
 
 export const deleteAllImages = async (): Promise<void> => {
   const dirPath = path.join(__dirname, `../../${process.env.UPLOADS_DIR}`);
-  
   fs.rmSync(dirPath, { recursive: true, force: true });
+};
+
+export const createUploadsFolder = () => {
+  const uploadsDir = path.join(
+    __dirname,
+    `../../${process.env.UPLOADS_DIR || "uploads"}`
+  );
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+    console.log(`Created directory: ${uploadsDir}`);
+  }
 };

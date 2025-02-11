@@ -6,12 +6,13 @@ import mongoose from "mongoose";
 import path from "path";
 import swaggerJsDoc from "swagger-jsdoc";
 import swaggerUI from "swagger-ui-express";
-import usersRoutes from "./routes/usersRoutes";
 import aiRoutes from "./routes/ai_routes";
 import authRoutes from "./routes/auth_routes";
 import commentsRoute from "./routes/comments_routes";
-import postsRoute from "./routes/posts_route";
 import plantRoutes from "./routes/plantRoutes";
+import postsRoute from "./routes/posts_route";
+import usersRoutes from "./routes/usersRoutes";
+import { createUploadsFolder } from "./utils/uploadUtils";
 
 let envFile;
 switch (process.env.NODE_ENV) {
@@ -30,17 +31,21 @@ dotenv.config({ path: path.resolve(__dirname, `../${envFile}`) });
 console.log("Environment File Loaded:", envFile);
 console.log("Current NODE_ENV:", process.env.NODE_ENV);
 
+createUploadsFolder();
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use("/uploads", express.static(path.join(__dirname, `../${process.env.UPLOADS_DIR}`)));
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, `../${process.env.UPLOADS_DIR}`))
+);
 app.use("/posts", postsRoute);
 app.use("/comments", commentsRoute);
 app.use("/auth", authRoutes);
 app.use("/users", usersRoutes);
 app.use("/ai", aiRoutes);
-app.use("/plants", plantRoutes); 
+app.use("/plants", plantRoutes);
 app.use(express.urlencoded({ extended: true }));
 
 const options = {
