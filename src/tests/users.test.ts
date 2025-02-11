@@ -65,7 +65,7 @@ describe("User Profile Tests", () => {
       .attach("image", path.join(__dirname, "./mocks/test-image.jpg"));
 
     expect(response.statusCode).toBe(200);
-    expect(response.body.profilePicture).toMatch(/uploads\/.+\.jpg/);
+    expect(response.body.profilePicture).toMatch(/uploads_test\/.+\.jpg/);
   });
 
   test("New user should have default username from email prefix", async () => {

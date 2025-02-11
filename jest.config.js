@@ -7,5 +7,6 @@ export default {
     },
     moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],
     setupFiles: ["<rootDir>/jest.setup.js"],
+    globalTeardown: '<rootDir>/src/jest.teardown.ts',
 };
 

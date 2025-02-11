@@ -21,7 +21,7 @@ const register = async (req: Request, res: Response) => {
     };
 
     if (req.file) {
-      updateData.profilePicture = `/uploads/${req.file.filename}`;
+      updateData.profilePicture = `/${process.env.UPLOADS_DIR}/${req.file.filename}`;
     }
 
     const user = await userModel.create(updateData);

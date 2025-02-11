@@ -24,7 +24,7 @@ export const updateUserProfile = async (req: Request, res: Response): Promise<vo
         const updateData: Partial<IUser> = { username };
 
         if (req.file) {
-            updateData.profilePicture = `/uploads/${req.file.filename}`; // ✅ Handle image uploads
+            updateData.profilePicture = `/${process.env.UPLOADS_DIR}/${req.file.filename}`;
         }
 
         const updatedUser = await userModel.findByIdAndUpdate(

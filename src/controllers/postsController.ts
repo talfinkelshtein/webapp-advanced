@@ -18,7 +18,7 @@ class PostsController extends BaseController<IPost> {
         return;
       }
 
-      req.body.imagePath = `/uploads/${req.file.filename}`;
+      req.body.imagePath = `/${process.env.UPLOADS_DIR}/${req.file.filename}`;
       req.body.owner = new mongoose.Types.ObjectId(req.body.owner);
 
       const createdPost = await postModel.create(req.body);
@@ -40,18 +40,18 @@ class PostsController extends BaseController<IPost> {
     try {
       const updateData: EditAndDeletePayload<IPost> = { ...req.body };
 
-      if (req.file) updateData.imagePath = `/uploads/${req.file.filename}`;
+      if (req.file) updateData.imagePath = `/${process.env.UPLOADS_DIR}/${req.file.filename}`;
 
       const post = await this.model.findById(req.params.id);
 
       if (!post) {
-        if (req.file) deleteImageFromServer(`/uploads/${req.file.filename}`);
+        if (req.file) deleteImageFromServer(`/${process.env.UPLOADS_DIR}/${req.file.filename}`);
         res.status(StatusCodes.NOT_FOUND).json({ error: "Post not found" });
         return;
       }
 
       if (post.owner.toString() !== updateData.userId) {
-        if (req.file) deleteImageFromServer(`/uploads/${req.file.filename}`);
+        if (req.file) deleteImageFromServer(`/${process.env.UPLOADS_DIR}/${req.file.filename}`);
         res.status(StatusCodes.UNAUTHORIZED).json({ error: "Unauthorized" });
         return;
       }
@@ -198,6 +198,7 @@ class PostsController extends BaseController<IPost> {
         .json({ error: "Failed to delete item" });
     }
   }
+
 }
 
 export default new PostsController();

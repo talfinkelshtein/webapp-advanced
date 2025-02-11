@@ -2,7 +2,7 @@ import multer from "multer";
 import path from "path";
 
 const storage = multer.diskStorage({
-  destination: "uploads/",
+  destination: `${process.env.UPLOADS_DIR}/`,
   filename: (req, file, cb) => {
     const ext = path.extname(file.originalname) || ".jpg"; 
     const uniqueName = `${file.fieldname}-${Date.now()}${ext}`;

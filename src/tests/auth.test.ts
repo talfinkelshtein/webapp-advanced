@@ -240,8 +240,7 @@ describe("Auth Tests", () => {
       .set("Authorization", `bearer ${testUser.accessToken}`)
       .field("title", "Test Post")
       .field("content", "Test Content")
-      .field("owner", "67ab31e687311384cae3cb59")
-      .field("userId", testUser._id as string)
+      .field("owner", testUser._id as string)
       .attach("image", path.join(__dirname, "./mocks/test-image.jpg"));
 
     expect(response4.statusCode).toBe(201);
