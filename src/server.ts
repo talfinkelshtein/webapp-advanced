@@ -26,10 +26,7 @@ switch (process.env.NODE_ENV) {
     envFile = ".env";
 }
 
-dotenv.config({ path: path.resolve(__dirname, `../${envFile}`) });
-
-console.log("Environment File Loaded:", envFile);
-console.log("Current NODE_ENV:", process.env.NODE_ENV);
+dotenv.config({ path: path.resolve(__dirname, `../${envFile}`), override: true });
 
 createUploadsFolder();
 const app = express();
@@ -56,7 +53,7 @@ const options = {
       version: "1.0.0",
       description: "REST server including authentication using JWT",
     },
-    servers: [{ url: "http://localhost:3000" }],
+    servers: [{ url: `${process.env.DOMAIN_BASE}:${process.env.PORT}` }],
   },
   apis: ["./src/routes/*.ts"],
 };
