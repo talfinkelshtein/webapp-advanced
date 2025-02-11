@@ -11,6 +11,7 @@ import aiRoutes from "./routes/ai_routes";
 import authRoutes from "./routes/auth_routes";
 import commentsRoute from "./routes/comments_routes";
 import postsRoute from "./routes/posts_route";
+import plantRoutes from "./routes/plantRoutes";
 
 let envFile;
 switch (process.env.NODE_ENV) {
@@ -39,6 +40,7 @@ app.use("/comments", commentsRoute);
 app.use("/auth", authRoutes);
 app.use("/users", usersRoutes);
 app.use("/ai", aiRoutes);
+app.use("/plants", plantRoutes); 
 app.use(express.urlencoded({ extended: true }));
 
 const options = {
