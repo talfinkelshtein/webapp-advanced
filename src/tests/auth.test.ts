@@ -22,7 +22,6 @@ beforeAll(async () => {
 
 afterAll((done) => {
   console.log("afterAll");
-  cleanDb();
   mongoose.connection.close();
   done();
 });
