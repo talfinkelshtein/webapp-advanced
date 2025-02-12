@@ -45,6 +45,18 @@ app.use("/ai", aiRoutes);
 app.use("/plants", plantRoutes);
 app.use(express.urlencoded({ extended: true }));
 
+const frontPath = path.resolve("front"); 
+app.use(express.static(frontPath));
+
+app.get("*", (req, res) => {
+  const indexPath = path.join(frontPath, "index.html");
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      res.status(500).send("Error loading frontend");
+    }
+  });
+});
+
 const swaggerUrl = process.env.PORT === "443" ? process.env.DOMAIN_BASE : `${process.env.DOMAIN_BASE}:${process.env.PORT}`;
 
 const options = {
