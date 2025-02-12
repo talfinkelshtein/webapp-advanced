@@ -1,5 +1,6 @@
 node_modules/
 coverage/
 dist/
+front/
 uploads/
 uploads_test/
