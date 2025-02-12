@@ -45,6 +45,8 @@ app.use("/ai", aiRoutes);
 app.use("/plants", plantRoutes);
 app.use(express.urlencoded({ extended: true }));
 
+const swaggerUrl = process.env.PORT === "443" ? process.env.DOMAIN_BASE : `${process.env.DOMAIN_BASE}:${process.env.PORT}`;
+
 const options = {
   definition: {
     openapi: "3.0.0",
@@ -53,7 +55,7 @@ const options = {
       version: "1.0.0",
       description: "REST server including authentication using JWT",
     },
-    servers: [{ url: `${process.env.DOMAIN_BASE}:${process.env.PORT}` }],
+    servers: [{ url: swaggerUrl }],
   },
   apis: ["./src/routes/*.ts"],
 };
