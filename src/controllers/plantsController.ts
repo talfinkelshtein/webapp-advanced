@@ -18,6 +18,7 @@ const fetchFlowersFromTrefle = async (page: number, perPage: number) => {
     const response = await axios.get(
         `https://trefle.io/api/v1/plants?token=${process.env.TREFLE_API_KEY}&page=${page}&per_page=${perPage}`
     );
+
     return response.data?.data || [];
 };
 
@@ -25,7 +26,6 @@ export const getPlantsFromTrefle = async (req: Request, res: Response): Promise<
     try {
         const perPage = 20;
         const maxPages = 5;
-
         const allFlowers = await Promise.all(
             Array.from({ length: maxPages }, (_, page) => fetchFlowersFromTrefle(page + 1, perPage))
         );
